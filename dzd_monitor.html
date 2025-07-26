@@ -932,7 +932,7 @@
             // Update stats
             document.getElementById('totalDevices').textContent = devices ? devices.length : 0;
             document.getElementById('onlineDevices').textContent = devices ? 
-                devices.filter(d => d.latency_status === 'Excellent' || d.latency_status === 'Good').length : 0;
+                devices.filter(d => d.latency_status === 'online').length : 0;
             document.getElementById('uptime').textContent = formatUptime(health.uptime || stats.uptime);
             
             // Fix: Handle successRate as either string or number
