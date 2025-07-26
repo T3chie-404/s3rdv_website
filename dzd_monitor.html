@@ -229,7 +229,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
-            max-height: 600px;
+            max-height: 800px;
             overflow-y: auto;
             padding-right: 1rem;
         }
@@ -262,7 +262,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 100px 120px 1fr;
+            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 1fr;
             gap: 1rem;
             align-items: center;
         }
@@ -355,25 +355,25 @@
             font-weight: 500;
         }
 
-        .latency-display {
+        .deviation-display {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             justify-content: center;
         }
 
-        .latency-value {
+        .deviation-value {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-primary);
         }
 
-        .latency-unit {
+        .deviation-unit {
             font-size: 0.7rem;
             color: var(--text-muted);
         }
 
-        .latency-status {
+        .deviation-status {
             padding: 0.25rem 0.5rem;
             border-radius: 6px;
             font-size: 0.7rem;
@@ -442,6 +442,17 @@
 
         .trend-neutral {
             color: var(--text-muted);
+        }
+
+        /* Smooth refresh animations */
+        .device-card.updating {
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .device-card.updated {
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         /* Loading animation */
@@ -726,8 +737,8 @@
             return 'status-online';
         }
 
-        // Get latency status based on reachability and deviation
-        function getLatencyStatus(latency, historicalStats) {
+        // Get deviation status based on reachability and deviation
+        function getDeviationStatus(latency, historicalStats) {
             if (latency === null) return 'Unknown';
             
             // Check for significant deviation (more than 20% change)
@@ -736,6 +747,184 @@
             }
             
             return 'Stable';
+        }
+
+        // Calculate deviation score for sorting
+        function getDeviationScore(device) {
+            let score = 0;
+            
+            // Offline devices get highest priority
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                score += 1000;
+            }
+            
+            // Add deviation score based on trend
+            if (device.historical_stats && device.historical_stats.trend !== 0) {
+                score += Math.abs(device.historical_stats.trend) * 10;
+            }
+            
+            // Add score based on number of observations (more data = more reliable)
+            if (device.history_count) {
+                score += device.history_count;
+            }
+            
+            return score;
+        }
+
+        // Sort devices by deviation score (highest first)
+        function sortDevicesByDeviation(devices) {
+            return devices.sort((a, b) => {
+                const scoreA = getDeviationScore(a);
+                const scoreB = getDeviationScore(b);
+                return scoreB - scoreA; // Highest score first
+            });
+        }
+
+        // Update individual device card without full refresh
+        function updateDeviceCard(deviceId, newData) {
+            const existingCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+            if (!existingCard) return;
+            
+            // Add updating class for smooth transition
+            existingCard.classList.add('updating');
+            
+            // Update specific elements
+            const latencyElement = existingCard.querySelector('.deviation-value');
+            const statusElement = existingCard.querySelector('.device-status');
+            const stabilityElement = existingCard.querySelector('.deviation-status');
+            const historicalElement = existingCard.querySelector('.historical-stats');
+            
+            if (latencyElement) {
+                latencyElement.textContent = newData.latency !== null ? newData.latency : '-';
+                latencyElement.style.color = getLatencyColor(newData.latency);
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = newData.latency_status || 'Unknown';
+                statusElement.className = `device-status ${getStatusClass(newData.latency_status, newData.latency, newData.historical_stats)}`;
+            }
+            
+            if (stabilityElement) {
+                stabilityElement.textContent = getDeviationStatus(newData.latency, newData.historical_stats);
+                stabilityElement.className = `deviation-status status-${getDeviationStatus(newData.latency, newData.historical_stats).toLowerCase()}`;
+            }
+            
+            if (historicalElement && newData.historical_stats) {
+                historicalElement.innerHTML = createHistoricalStatsHTML(newData.historical_stats);
+            }
+            
+            // Remove updating class and add updated class
+            setTimeout(() => {
+                existingCard.classList.remove('updating');
+                existingCard.classList.add('updated');
+                setTimeout(() => existingCard.classList.remove('updated'), 300);
+            }, 200);
+        }
+
+        // Create historical stats HTML
+        function createHistoricalStatsHTML(historicalStats) {
+            const trendIndicator = getTrendIndicator(historicalStats.trend);
+            return `
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.min || '-'}</div>
+                    <div class="stat-label-small">Min</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.max || '-'}</div>
+                    <div class="stat-label-small">Max</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.avg || '-'}</div>
+                    <div class="stat-label-small">Avg</div>
+                </div>
+                <div class="trend-indicator">
+                    ${trendIndicator}
+                </div>
+            `;
+        }
+
+        // Create device card in wide format
+        function createDeviceCard(device) {
+            const latencyColor = getLatencyColor(device.latency);
+            const deviationStatus = getDeviationStatus(device.latency, device.historical_stats);
+            const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
+            
+            const historicalStats = device.historical_stats;
+            const historicalHTML = historicalStats ? createHistoricalStatsHTML(historicalStats) : '';
+
+            return `
+                <div class="device-card fade-in" data-device-id="${device.pubkey}">
+                    <div class="device-info">
+                        <div class="device-name">${formatDeviceName(device.display_name)}</div>
+                        <div class="device-code">${device.code || device.pubkey.substring(0, 8)}</div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="info-label">Location</div>
+                        <div class="info-value">${device.location || 'Unknown'}</div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="info-label">Type</div>
+                        <div class="info-value">${device.type || 'Unknown'}</div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="info-label">IP Address</div>
+                        <div class="info-value">${device.public_ip || 'Unknown'}</div>
+                    </div>
+                    
+                    <div class="deviation-display">
+                        <div class="deviation-value" style="color: ${latencyColor}">
+                            ${device.latency !== null ? device.latency : '-'}
+                        </div>
+                        <div class="deviation-unit">ms</div>
+                    </div>
+                    
+                    <div class="device-status ${statusClass}">
+                        ${device.latency_status || 'Unknown'}
+                    </div>
+                    
+                    <div class="deviation-status status-${deviationStatus.toLowerCase()}">
+                        ${deviationStatus}
+                    </div>
+                    
+                    <div class="historical-stats">
+                        ${historicalHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update device list with smooth refresh
+        function updateDeviceList() {
+            const devicesGrid = document.getElementById('devicesGrid');
+            
+            if (!devices || devices.length === 0) {
+                devicesGrid.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No devices found</p>';
+                return;
+            }
+
+            // Sort devices by deviation score
+            const sortedDevices = sortDevicesByDeviation(devices);
+            
+            // Check if we need to rebuild the entire list or just update existing cards
+            const existingCards = devicesGrid.querySelectorAll('.device-card');
+            const needsRebuild = existingCards.length !== sortedDevices.length;
+            
+            if (needsRebuild) {
+                // Full rebuild needed (new devices added/removed)
+                const deviceCards = sortedDevices.map(createDeviceCard).join('');
+                devicesGrid.innerHTML = deviceCards;
+            } else {
+                // Update existing cards smoothly
+                sortedDevices.forEach((device, index) => {
+                    const existingCard = existingCards[index];
+                    if (existingCard && existingCard.dataset.deviceId === device.pubkey) {
+                        updateDeviceCard(device.pubkey, device);
+                    }
+                });
+            }
         }
 
         // Update dashboard
@@ -771,88 +960,6 @@
                 statusElement.textContent = 'Offline';
                 statusElement.style.color = 'var(--accent-danger)';
             }
-        }
-
-        // Create device card in wide format
-        function createDeviceCard(device) {
-            const latencyColor = getLatencyColor(device.latency);
-            const latencyStatus = getLatencyStatus(device.latency, device.historical_stats);
-            const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
-            
-            const historicalStats = device.historical_stats;
-            const trendIndicator = historicalStats ? getTrendIndicator(historicalStats.trend) : '';
-
-            return `
-                <div class="device-card fade-in">
-                    <div class="device-info">
-                        <div class="device-name">${formatDeviceName(device.display_name)}</div>
-                        <div class="device-code">${device.code || device.pubkey.substring(0, 8)}</div>
-                    </div>
-                    
-                    <div class="device-info">
-                        <div class="info-label">Location</div>
-                        <div class="info-value">${device.location || 'Unknown'}</div>
-                    </div>
-                    
-                    <div class="device-info">
-                        <div class="info-label">Type</div>
-                        <div class="info-value">${device.type || 'Unknown'}</div>
-                    </div>
-                    
-                    <div class="device-info">
-                        <div class="info-label">IP Address</div>
-                        <div class="info-value">${device.public_ip || 'Unknown'}</div>
-                    </div>
-                    
-                    <div class="latency-display">
-                        <div class="latency-value" style="color: ${latencyColor}">
-                            ${device.latency !== null ? device.latency : '-'}
-                        </div>
-                        <div class="latency-unit">ms</div>
-                    </div>
-                    
-                    <div class="device-status ${statusClass}">
-                        ${device.latency_status || 'Unknown'}
-                    </div>
-                    
-                    <div class="latency-status status-${latencyStatus.toLowerCase()}">
-                        ${latencyStatus}
-                    </div>
-                    
-                    ${historicalStats ? `
-                        <div class="historical-stats">
-                            <div class="stat-item">
-                                <div class="stat-number">${historicalStats.min || '-'}</div>
-                                <div class="stat-label-small">Min</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">${historicalStats.max || '-'}</div>
-                                <div class="stat-label-small">Max</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">${historicalStats.avg || '-'}</div>
-                                <div class="stat-label-small">Avg</div>
-                            </div>
-                            <div class="trend-indicator">
-                                ${trendIndicator}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // Update device list
-        function updateDeviceList() {
-            const devicesGrid = document.getElementById('devicesGrid');
-            
-            if (!devices || devices.length === 0) {
-                devicesGrid.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No devices found</p>';
-                return;
-            }
-
-            const deviceCards = devices.map(createDeviceCard).join('');
-            devicesGrid.innerHTML = deviceCards;
         }
 
         // Fetch data from API
