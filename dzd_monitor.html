@@ -209,12 +209,12 @@
             Unable to connect to monitoring service. This may be due to:
             <ul style="margin-top: 10px; padding-left: 20px;">
                 <li>DZ Device Monitor service not running on the server</li>
-                <li>Caddy proxy service not running or misconfigured</li>
+                <li>Port forwarding not configured for port 3000</li>
                 <li>Network connectivity issues between s3rdv.com and 192.190.136.34</li>
-                <li>Firewall blocking HTTPS connections on port 443</li>
+                <li>Firewall blocking HTTP connections on port 3000</li>
             </ul>
             <p style="margin-top: 10px;"><strong>Check the browser console for detailed error information.</strong></p>
-            <p style="margin-top: 10px;"><strong>Note:</strong> The dashboard uses HTTPS via Caddy proxy to connect securely.</strong></p>
+            <p style="margin-top: 10px;"><strong>Note:</strong> The dashboard connects directly to the monitoring API on port 3000.</strong></p>
         </div>
 
         <div id="content" style="display: none;">
@@ -278,10 +278,10 @@
         let refreshInterval;
 
         // Configuration - Update this to your server URL
-        // Use HTTPS via Caddy proxy for secure connections
+        // Using HTTP for reliable connectivity (port 3000 is forwarded)
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://192.190.136.34'; // Caddy proxy with automatic HTTPS
+            : 'http://192.190.136.34:3000'; // Direct HTTP connection to forwarded port
 
         async function fetchData() {
             try {
