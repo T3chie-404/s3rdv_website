@@ -880,7 +880,11 @@
             const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
             
             const historicalStats = device.historical_stats;
-            const historicalHTML = historicalStats ? createHistoricalStatsHTML(historicalStats) : '';
+            
+            // Debug: Log historical stats for first device
+            if (device.pubkey === devices[0]?.pubkey) {
+                console.log('Historical stats for device:', device.display_name, historicalStats);
+            }
 
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
@@ -904,13 +908,6 @@
                         <div class="info-value">${device.public_ip || 'Unknown'}</div>
                     </div>
                     
-                    <div class="deviation-symbol">
-                        <div class="info-label">Deviation</div>
-                        <div class="deviation-icon" style="font-size: 1.2rem;">
-                            ${getDeviationSymbol(device)}
-                        </div>
-                    </div>
-                    
                     <div class="device-status ${statusClass}">
                         ${device.latency_status || 'Unknown'}
                     </div>
@@ -918,21 +915,21 @@
                     <div class="latency-min">
                         <div class="info-label">Min</div>
                         <div class="info-value">
-                            ${historicalStats ? (historicalStats.min || '-') : '-'} ms
+                            ${historicalStats && historicalStats.min ? historicalStats.min : '-'} ms
                         </div>
                     </div>
                     
                     <div class="latency-max">
                         <div class="info-label">Max</div>
                         <div class="info-value">
-                            ${historicalStats ? (historicalStats.max || '-') : '-'} ms
+                            ${historicalStats && historicalStats.max ? historicalStats.max : '-'} ms
                         </div>
                     </div>
                     
                     <div class="latency-avg">
                         <div class="info-label">Avg</div>
                         <div class="info-value">
-                            ${historicalStats ? (historicalStats.avg || '-') : '-'} ms
+                            ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'} ms
                         </div>
                     </div>
                     
@@ -940,6 +937,13 @@
                         <div class="info-label">Last</div>
                         <div class="info-value" style="color: ${latencyColor}">
                             ${device.latency !== null ? device.latency : '-'} ms
+                        </div>
+                    </div>
+                    
+                    <div class="deviation-symbol">
+                        <div class="info-label">Deviation</div>
+                        <div class="deviation-icon" style="font-size: 1.2rem;">
+                            ${getDeviationSymbol(device)}
                         </div>
                     </div>
                 </div>
