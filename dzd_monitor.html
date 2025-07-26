@@ -227,8 +227,8 @@
 
         .devices-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
             max-height: 600px;
             overflow-y: auto;
             padding-right: 1rem;
@@ -252,7 +252,7 @@
             background: var(--accent-secondary);
         }
 
-        /* Device card */
+        /* Device card - Wide format */
         .device-card {
             background: var(--bg-secondary);
             border-radius: 12px;
@@ -261,6 +261,10 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: grid;
+            grid-template-columns: 200px 150px 120px 150px 120px 100px 120px 1fr;
+            gap: 1rem;
+            align-items: center;
         }
 
         .device-card::before {
@@ -285,18 +289,10 @@
             transform: scaleX(1);
         }
 
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
         .device-name {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.25rem;
         }
 
         .device-code {
@@ -313,6 +309,7 @@
             border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 500;
+            justify-content: center;
         }
 
         .status-online {
@@ -327,6 +324,12 @@
             border: 1px solid rgba(255, 71, 87, 0.3);
         }
 
+        .status-deviation {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
         .status-unknown {
             background: rgba(255, 170, 0, 0.2);
             color: var(--accent-warning);
@@ -334,13 +337,6 @@
         }
 
         .device-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-item {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
@@ -363,17 +359,17 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            justify-content: center;
         }
 
         .latency-value {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent-primary);
         }
 
         .latency-unit {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
         }
 
@@ -385,41 +381,34 @@
             text-transform: uppercase;
         }
 
-        .status-excellent {
+        .status-stable {
             background: rgba(0, 255, 136, 0.2);
             color: var(--accent-success);
         }
 
-        .status-good {
-            background: rgba(0, 212, 255, 0.2);
-            color: var(--accent-primary);
-        }
-
-        .status-fair {
+        .status-deviation {
             background: rgba(255, 170, 0, 0.2);
             color: var(--accent-warning);
         }
 
-        .status-poor {
+        .status-offline {
             background: rgba(255, 71, 87, 0.2);
             color: var(--accent-danger);
         }
 
-        /* Historical stats */
+        /* Historical stats - Compact */
         .historical-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.8rem;
         }
 
         .stat-item {
-            text-align: center;
-            padding: 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .stat-number {
@@ -717,27 +706,36 @@
             return 'var(--accent-danger)';
         }
 
-        // Get latency status
-        function getLatencyStatus(latency) {
-            if (!latency) return 'Unknown';
-            if (latency < 50) return 'Excellent';
-            if (latency < 100) return 'Good';
-            if (latency < 200) return 'Fair';
-            return 'Poor';
-        }
-
-        // Get status class
-        function getStatusClass(status) {
-            if (status === 'online' || status === 'Excellent' || status === 'Good') return 'status-online';
-            if (status === 'offline' || status === 'Poor') return 'status-offline';
-            return 'status-unknown';
-        }
-
         // Get trend indicator
         function getTrendIndicator(trend) {
             if (!trend || trend === 0) return '<span class="trend-neutral">→</span>';
             if (trend > 0) return `<span class="trend-up">↗ +${Math.abs(trend)}%</span>`;
             return `<span class="trend-down">↘ -${Math.abs(trend)}%</span>`;
+        }
+
+        // Get status class based on reachability
+        function getStatusClass(status, latency, historicalStats) {
+            if (status === 'Unreachable' || status === 'offline') return 'status-offline';
+            if (status === 'unknown') return 'status-unknown';
+            
+            // Check for latency deviation if we have historical data
+            if (historicalStats && historicalStats.trend !== 0) {
+                return 'status-deviation';
+            }
+            
+            return 'status-online';
+        }
+
+        // Get latency status based on reachability and deviation
+        function getLatencyStatus(latency, historicalStats) {
+            if (latency === null) return 'Unknown';
+            
+            // Check for significant deviation (more than 20% change)
+            if (historicalStats && Math.abs(historicalStats.trend) > 20) {
+                return 'Deviation';
+            }
+            
+            return 'Stable';
         }
 
         // Update dashboard
@@ -775,44 +773,35 @@
             }
         }
 
-        // Create device card
+        // Create device card in wide format
         function createDeviceCard(device) {
             const latencyColor = getLatencyColor(device.latency);
-            const latencyStatus = getLatencyStatus(device.latency);
-            const statusClass = getStatusClass(device.latency_status);
+            const latencyStatus = getLatencyStatus(device.latency, device.historical_stats);
+            const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
             
             const historicalStats = device.historical_stats;
             const trendIndicator = historicalStats ? getTrendIndicator(historicalStats.trend) : '';
 
             return `
                 <div class="device-card fade-in">
-                    <div class="device-header">
-                        <div>
-                            <div class="device-name">${formatDeviceName(device.display_name)}</div>
-                            <div class="device-code">${device.code || device.pubkey.substring(0, 8)}</div>
-                        </div>
-                        <div class="device-status ${statusClass}">
-                            ${device.latency_status || 'Unknown'}
-                        </div>
+                    <div class="device-info">
+                        <div class="device-name">${formatDeviceName(device.display_name)}</div>
+                        <div class="device-code">${device.code || device.pubkey.substring(0, 8)}</div>
                     </div>
                     
                     <div class="device-info">
-                        <div class="info-item">
-                            <div class="info-label">Location</div>
-                            <div class="info-value">${device.location || 'Unknown'}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Type</div>
-                            <div class="info-value">${device.type || 'Unknown'}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">IP Address</div>
-                            <div class="info-value">${device.public_ip || 'Unknown'}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Exchange</div>
-                            <div class="info-value">${device.exchange_name || 'Unknown'}</div>
-                        </div>
+                        <div class="info-label">Location</div>
+                        <div class="info-value">${device.location || 'Unknown'}</div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="info-label">Type</div>
+                        <div class="info-value">${device.type || 'Unknown'}</div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="info-label">IP Address</div>
+                        <div class="info-value">${device.public_ip || 'Unknown'}</div>
                     </div>
                     
                     <div class="latency-display">
@@ -820,9 +809,14 @@
                             ${device.latency !== null ? device.latency : '-'}
                         </div>
                         <div class="latency-unit">ms</div>
-                        <div class="latency-status status-${latencyStatus.toLowerCase()}">
-                            ${latencyStatus}
-                        </div>
+                    </div>
+                    
+                    <div class="device-status ${statusClass}">
+                        ${device.latency_status || 'Unknown'}
+                    </div>
+                    
+                    <div class="latency-status status-${latencyStatus.toLowerCase()}">
+                        ${latencyStatus}
                     </div>
                     
                     ${historicalStats ? `
@@ -839,9 +833,9 @@
                                 <div class="stat-number">${historicalStats.avg || '-'}</div>
                                 <div class="stat-label-small">Avg</div>
                             </div>
-                        </div>
-                        <div class="trend-indicator">
-                            ${trendIndicator}
+                            <div class="trend-indicator">
+                                ${trendIndicator}
+                            </div>
                         </div>
                     ` : ''}
                 </div>
