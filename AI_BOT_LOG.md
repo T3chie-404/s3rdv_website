@@ -101,6 +101,152 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 
 ---
 
+## Phase 4: Caddy HTTPS Implementation
+**Date**: July 26, 2025
+
+**Context**: Implemented Caddy reverse proxy to serve the DZ Device Monitor API over HTTPS, resolving mixed content warnings and enabling secure communications.
+
+**Changes Made**:
+- **Caddy Configuration**: Created Caddyfile for HTTPS reverse proxy
+- **API Endpoint**: Updated to `https://api.s3rdv.com` for secure access
+- **SSL Certificates**: Automatic Let's Encrypt certificate generation
+- **CORS Headers**: Added proper CORS configuration for cross-origin requests
+
+**Technical Implementation**:
+```caddy
+api.s3rdv.com {
+    reverse_proxy localhost:3000
+    header {
+        Access-Control-Allow-Origin https://s3rdv.com
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type"
+    }
+}
+```
+
+**Testing Results**:
+- ✅ HTTPS API endpoint working
+- ✅ Mixed content warnings resolved
+- ✅ CORS policy issues resolved
+- ✅ SSL certificates auto-generated
+
+**Deployment Status**: 
+- **Complete**: HTTPS API fully functional
+- **Live**: Accessible at https://api.s3rdv.com
+- **Secure**: All communications encrypted
+
+---
+
+## Phase 5: Dashboard Enhancements and Performance Optimization
+**Date**: July 26, 2025
+
+**Context**: Enhanced dashboard functionality with historical data, improved UI/UX, and performance optimizations.
+
+**Changes Made**:
+- **Historical Data**: Added min/max/avg latency tracking with 600 observations
+- **Deviation Monitoring**: Focus on reachability changes rather than absolute latency
+- **Smooth Refresh**: Implemented individual card updates to prevent blank screens
+- **Sorting**: Devices sorted by deviation score (offline > trend > history > latency)
+- **Column Layout**: Added "Last" and "Deviation" columns with proper CSS grid
+- **Rate Limiting**: Increased API rate limits to prevent 429 errors
+- **Retry Logic**: Added backend retry mechanism for unreliable `doublezero` commands
+
+**Technical Details**:
+- **Grid Layout**: 11 columns total (Device, Location, Type, IP, Status, Min, Max, Avg, Last, Deviation, Tools)
+- **Historical Storage**: In-memory with 10-minute disk persistence
+- **Deviation Calculation**: Trend-based analysis for network health
+- **Performance**: Smooth updates without full page refresh
+
+**CSS Improvements**:
+```css
+.device-card {
+    grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px;
+}
+```
+
+**JavaScript Enhancements**:
+- `updateDeviceCard()` for smooth individual updates
+- `sortDevicesByDeviation()` for intelligent sorting
+- `getDeviationSymbol()` for visual deviation indicators
+
+**Testing Results**:
+- ✅ Smooth refresh working
+- ✅ All columns displaying correctly
+- ✅ Sorting by deviation working
+- ✅ Historical data tracking
+- ✅ Performance optimized
+
+---
+
+## Phase 6: Tools Menu Implementation and ASN Integration
+**Date**: July 26, 2025
+
+**Context**: Implemented comprehensive tools menu for upstream provider analysis and added ASN lookup functionality to the backend.
+
+**Backend Changes** (dz-device-monitor):
+- **ASN Lookup**: Added `lookupASN()` method using RIPEstat API
+- **Data Enhancement**: `mergeDeviceData()` now includes ASN information
+- **Async Processing**: Updated to handle ASN lookups during device checks
+- **Error Handling**: Graceful fallback for failed ASN lookups
+
+**Frontend Changes** (s3rdv_website):
+- **Tools Column**: Added 12th column for tools menu
+- **Dropdown Menu**: Clean, typography-focused design without icons
+- **URL Generation**: Standardized links for all monitoring tools
+- **Responsive Design**: Elegant hover effects and transitions
+
+**Technical Implementation**:
+```javascript
+// ASN Lookup
+async lookupASN(ipAddress) {
+    const response = await axios.get(`https://stat.ripe.net/data/network-info/data.json?resource=${ipAddress}`);
+    return response.data.data.asns[0];
+}
+
+// Tools Menu
+function generateToolsMenu(ipAddress, asn) {
+    return `
+        <a href="https://stat.ripe.net/${ipAddress}">RIPEstat Analysis</a>
+        <a href="https://radar.cloudflare.com/ip/${ipAddress}">Cloudflare Radar</a>
+        <a href="https://ihr.iijlab.net/ihr/api/networks/${asn}/">IHR Network Health</a>
+        <a href="https://ioda.caida.org/ioda/dashboard">IODA Outage Check</a>
+        <a href="https://atlas.ripe.net/measurements/">RIPE Atlas Tests</a>
+    `;
+}
+```
+
+**CSS Design**:
+- **Typography**: Clean Inter font family
+- **Colors**: Consistent with dark theme
+- **Animations**: Smooth hover and dropdown transitions
+- **Accessibility**: Proper focus states and keyboard navigation
+
+**Tools Integration**:
+1. **RIPEstat**: Direct IP analysis
+2. **Cloudflare Radar**: IP geolocation and routing
+3. **IHR**: Network health (requires ASN)
+4. **IODA**: Outage detection (global)
+5. **RIPE Atlas**: Active measurements
+
+**Grid Layout Update**:
+```css
+grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px 120px;
+```
+
+**Testing Results**:
+- ✅ ASN lookup working in backend
+- ✅ Tools menu rendering correctly
+- ✅ All tool links functional
+- ✅ Disabled states for missing data
+- ✅ Clean typography and design
+
+**Deployment Status**: 
+- **Complete**: Tools menu fully functional
+- **Live**: Accessible at s3rdv.com/dzd_monitor
+- **Enhanced**: Comprehensive upstream analysis capabilities
+
+---
+
 ## Phase 4: HTTPS Success and CORS Resolution
 **Date**: July 26, 2025
 

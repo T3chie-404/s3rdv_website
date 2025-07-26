@@ -262,7 +262,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px;
+            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px;
             gap: 1rem;
             align-items: center;
         }
@@ -495,6 +495,89 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Tools Menu Styles */
+        .device-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tools-menu {
+            position: relative;
+        }
+
+        .tools-button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .tools-button:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        .tools-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .tools-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tool-item {
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tool-item:last-child {
+            border-bottom: none;
+        }
+
+        .tool-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .tool-item.disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .tool-item.disabled:hover {
+            background: none;
+            color: var(--text-muted);
         }
 
         /* Error display */
@@ -963,6 +1046,15 @@
                             ${getDeviationSymbol(device)}
                         </div>
                     </div>
+                    
+                    <div class="device-tools">
+                        <div class="info-label">Tools</div>
+                        <div class="tools-menu">
+                            <button class="tools-button" onclick="openToolsMenu('${device.pubkey}', '${device.public_ip}', '${device.asn || ''}')">
+                                Tools
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -1079,6 +1171,76 @@
 
         // Auto-refresh every 30 seconds
         setInterval(fetchData, 30000);
+
+        // Tools Menu Functions
+        function openToolsMenu(deviceId, ipAddress, asn) {
+            // Close any existing dropdowns
+            closeAllToolsDropdowns();
+            
+            // Find the tools menu for this device
+            const deviceCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+            const toolsMenu = deviceCard.querySelector('.tools-menu');
+            
+            // Create dropdown if it doesn't exist
+            let dropdown = toolsMenu.querySelector('.tools-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.className = 'tools-dropdown';
+                dropdown.innerHTML = generateToolsMenu(ipAddress, asn);
+                toolsMenu.appendChild(dropdown);
+            }
+            
+            // Show dropdown
+            dropdown.classList.add('show');
+            
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!toolsMenu.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 100);
+        }
+
+        function closeAllToolsDropdowns() {
+            const dropdowns = document.querySelectorAll('.tools-dropdown');
+            dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+        }
+
+        function generateToolsMenu(ipAddress, asn) {
+            const hasIp = ipAddress && ipAddress !== 'Unknown';
+            const hasAsn = asn && asn !== '';
+            
+            return `
+                <a href="${hasIp ? `https://stat.ripe.net/${ipAddress}` : '#'}" 
+                   class="tool-item ${!hasIp ? 'disabled' : ''}" 
+                   target="_blank">
+                    RIPEstat Analysis
+                </a>
+                <a href="${hasIp ? `https://radar.cloudflare.com/ip/${ipAddress}` : '#'}" 
+                   class="tool-item ${!hasIp ? 'disabled' : ''}" 
+                   target="_blank">
+                    Cloudflare Radar
+                </a>
+                <a href="${hasAsn ? `https://ihr.iijlab.net/ihr/api/networks/${asn}/` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    IHR Network Health
+                </a>
+                <a href="https://ioda.caida.org/ioda/dashboard#view=inspect&entity=country/US&last-view=overview" 
+                   class="tool-item" 
+                   target="_blank">
+                    IODA Outage Check
+                </a>
+                <a href="https://atlas.ripe.net/measurements/" 
+                   class="tool-item" 
+                   target="_blank">
+                    RIPE Atlas Tests
+                </a>
+            `;
+        }
 
         // Initial load
         fetchData();
