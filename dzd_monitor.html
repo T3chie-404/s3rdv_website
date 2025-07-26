@@ -262,7 +262,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px 120px;
+            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px;
             gap: 1rem;
             align-items: center;
         }
@@ -886,6 +886,18 @@
                 console.log('Historical stats for device:', device.display_name, historicalStats);
                 console.log('Device latency:', device.latency);
                 console.log('Deviation symbol:', getDeviationSymbol(device));
+                console.log('Device card HTML structure:', `
+                    Device Name: ${formatDeviceName(device.display_name)}
+                    Location: ${device.location || 'Unknown'}
+                    Type: ${device.type || 'Unknown'}
+                    IP: ${device.public_ip || 'Unknown'}
+                    Status: ${device.latency_status || 'Unknown'}
+                    Min: ${historicalStats && historicalStats.min ? historicalStats.min : '-'}
+                    Max: ${historicalStats && historicalStats.max ? historicalStats.max : '-'}
+                    Avg: ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'}
+                    Last: ${device.latency !== null ? device.latency : '-'}
+                    Deviation: ${getDeviationSymbol(device)}
+                `);
             }
 
             return `
