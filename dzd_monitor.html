@@ -262,7 +262,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 1fr;
+            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 1fr;
             gap: 1rem;
             align-items: center;
         }
@@ -724,6 +724,19 @@
             return `<span class="trend-down">↘ -${Math.abs(trend)}%</span>`;
         }
 
+        // Get deviation symbol
+        function getDeviationSymbol(device) {
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                return '❌'; // Offline
+            }
+            
+            if (device.historical_stats && Math.abs(device.historical_stats.trend) > 20) {
+                return device.historical_stats.trend > 0 ? '📈' : '📉'; // Rising/Falling trend
+            }
+            
+            return '✅'; // Stable
+        }
+
         // Get status class based on reachability
         function getStatusClass(status, latency, historicalStats) {
             if (status === 'Unreachable' || status === 'offline') return 'status-offline';
@@ -794,14 +807,15 @@
             existingCard.classList.add('updating');
             
             // Update specific elements
-            const latencyElement = existingCard.querySelector('.deviation-value');
+            const deviationElement = existingCard.querySelector('.deviation-icon');
             const statusElement = existingCard.querySelector('.device-status');
-            const stabilityElement = existingCard.querySelector('.deviation-status');
-            const historicalElement = existingCard.querySelector('.historical-stats');
+            const minElement = existingCard.querySelector('.latency-min .info-value');
+            const maxElement = existingCard.querySelector('.latency-max .info-value');
+            const avgElement = existingCard.querySelector('.latency-avg .info-value');
+            const lastElement = existingCard.querySelector('.latency-last .info-value');
             
-            if (latencyElement) {
-                latencyElement.textContent = newData.latency !== null ? newData.latency : '-';
-                latencyElement.style.color = getLatencyColor(newData.latency);
+            if (deviationElement) {
+                deviationElement.innerHTML = getDeviationSymbol(newData);
             }
             
             if (statusElement) {
@@ -809,13 +823,21 @@
                 statusElement.className = `device-status ${getStatusClass(newData.latency_status, newData.latency, newData.historical_stats)}`;
             }
             
-            if (stabilityElement) {
-                stabilityElement.textContent = getDeviationStatus(newData.latency, newData.historical_stats);
-                stabilityElement.className = `deviation-status status-${getDeviationStatus(newData.latency, newData.historical_stats).toLowerCase()}`;
+            if (minElement && newData.historical_stats) {
+                minElement.textContent = `${newData.historical_stats.min || '-'} ms`;
             }
             
-            if (historicalElement && newData.historical_stats) {
-                historicalElement.innerHTML = createHistoricalStatsHTML(newData.historical_stats);
+            if (maxElement && newData.historical_stats) {
+                maxElement.textContent = `${newData.historical_stats.max || '-'} ms`;
+            }
+            
+            if (avgElement && newData.historical_stats) {
+                avgElement.textContent = `${newData.historical_stats.avg || '-'} ms`;
+            }
+            
+            if (lastElement) {
+                lastElement.textContent = `${newData.latency !== null ? newData.latency : '-'} ms`;
+                lastElement.style.color = getLatencyColor(newData.latency);
             }
             
             // Remove updating class and add updated class
@@ -879,30 +901,43 @@
                         <div class="info-value">${device.public_ip || 'Unknown'}</div>
                     </div>
                     
-                    <div class="deviation-display">
-                        <div class="deviation-value" style="color: ${latencyColor}">
-                            ${device.latency !== null ? device.latency : '-'}
+                    <div class="deviation-symbol">
+                        <div class="info-label">Deviation</div>
+                        <div class="deviation-icon" style="font-size: 1.2rem;">
+                            ${getDeviationSymbol(device)}
                         </div>
-                        <div class="deviation-unit">ms</div>
                     </div>
                     
                     <div class="device-status ${statusClass}">
                         ${device.latency_status || 'Unknown'}
                     </div>
                     
-                    <div class="deviation-status status-${deviationStatus.toLowerCase()}">
-                        ${deviationStatus}
+                    <div class="latency-min">
+                        <div class="info-label">Min</div>
+                        <div class="info-value">
+                            ${historicalStats ? (historicalStats.min || '-') : '-'} ms
+                        </div>
                     </div>
                     
-                    <div class="last-measurement">
+                    <div class="latency-max">
+                        <div class="info-label">Max</div>
+                        <div class="info-value">
+                            ${historicalStats ? (historicalStats.max || '-') : '-'} ms
+                        </div>
+                    </div>
+                    
+                    <div class="latency-avg">
+                        <div class="info-label">Avg</div>
+                        <div class="info-value">
+                            ${historicalStats ? (historicalStats.avg || '-') : '-'} ms
+                        </div>
+                    </div>
+                    
+                    <div class="latency-last">
                         <div class="info-label">Last</div>
                         <div class="info-value" style="color: ${latencyColor}">
                             ${device.latency !== null ? device.latency : '-'} ms
                         </div>
-                    </div>
-                    
-                    <div class="historical-stats">
-                        ${historicalHTML}
                     </div>
                 </div>
             `;
