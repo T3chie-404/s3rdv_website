@@ -208,12 +208,13 @@
         <div id="error" class="error" style="display: none;">
             Unable to connect to monitoring service. This may be due to:
             <ul style="margin-top: 10px; padding-left: 20px;">
-                <li>Mixed content warning (HTTPS page trying to access HTTP API)</li>
-                <li>Service not running on the server</li>
-                <li>Network connectivity issues</li>
+                <li>DZ Device Monitor service not running on the server</li>
+                <li>Network connectivity issues between s3rdv.com and 192.190.136.34:3000</li>
                 <li>Firewall blocking the connection</li>
+                <li>Port forwarding not configured correctly</li>
             </ul>
             <p style="margin-top: 10px;"><strong>Check the browser console for detailed error information.</strong></p>
+            <p style="margin-top: 10px;"><strong>Note:</strong> The dashboard uses HTTP to connect to the monitoring service.</strong></p>
         </div>
 
         <div id="content" style="display: none;">
@@ -277,23 +278,17 @@
         let refreshInterval;
 
         // Configuration - Update this to your server URL
-        // Use HTTPS for production to avoid mixed content warnings, with HTTP fallback
+        // Use HTTP for external connections since DZ Device Monitor doesn't support HTTPS
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://192.190.136.34:3000'; // Proxmox server IP address 10.252.3.192 running in Bluebird DC
+            : 'http://192.190.136.34:3000'; // Proxmox server IP address 10.252.3.192 running in Bluebird DC
 
         async function fetchData() {
             try {
-                // Try HTTPS first, fallback to HTTP if needed
-                let apiBase = API_BASE;
-                if (window.location.protocol === 'https:' && !apiBase.startsWith('https:')) {
-                    apiBase = apiBase.replace('http:', 'https:');
-                }
-
                 const [healthResponse, devicesResponse, statsResponse] = await Promise.all([
-                    fetch(`${apiBase}/health`),
-                    fetch(`${apiBase}/api/devices`),
-                    fetch(`${apiBase}/api/stats`)
+                    fetch(`${API_BASE}/health`),
+                    fetch(`${API_BASE}/api/devices`),
+                    fetch(`${API_BASE}/api/stats`)
                 ]);
 
                 if (!healthResponse.ok || !devicesResponse.ok || !statsResponse.ok) {
@@ -313,39 +308,6 @@
                 document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
             } catch (error) {
                 console.error('Error fetching data:', error);
-                
-                // If HTTPS failed and we're on HTTPS, try HTTP fallback
-                if (window.location.protocol === 'https:' && API_BASE.includes('https:')) {
-                    console.log('HTTPS failed, trying HTTP fallback...');
-                    try {
-                        const fallbackApiBase = API_BASE.replace('https:', 'http:');
-                        const [healthResponse, devicesResponse, statsResponse] = await Promise.all([
-                            fetch(`${fallbackApiBase}/health`),
-                            fetch(`${fallbackApiBase}/api/devices`),
-                            fetch(`${fallbackApiBase}/api/stats`)
-                        ]);
-
-                        if (!healthResponse.ok || !devicesResponse.ok || !statsResponse.ok) {
-                            throw new Error('Fallback API calls failed');
-                        }
-
-                        const healthData = await healthResponse.json();
-                        const devicesData = await devicesResponse.json();
-                        const statsData = await statsResponse.json();
-
-                        updateDashboard(healthData, devicesData.data, statsData.data);
-                        
-                        document.getElementById('loading').style.display = 'none';
-                        document.getElementById('error').style.display = 'none';
-                        document.getElementById('content').style.display = 'block';
-                        
-                        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-                        return;
-                    } catch (fallbackError) {
-                        console.error('Fallback also failed:', fallbackError);
-                    }
-                }
-                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('content').style.display = 'none';
