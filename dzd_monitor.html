@@ -262,7 +262,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 1fr;
+            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 1fr;
             gap: 1rem;
             align-items: center;
         }
@@ -768,6 +768,11 @@
                 score += device.history_count;
             }
             
+            // Add small score based on latency (higher latency = slightly higher priority)
+            if (device.latency && device.latency > 0) {
+                score += device.latency / 100; // Small factor to differentiate
+            }
+            
             return score;
         }
 
@@ -887,6 +892,13 @@
                     
                     <div class="deviation-status status-${deviationStatus.toLowerCase()}">
                         ${deviationStatus}
+                    </div>
+                    
+                    <div class="last-measurement">
+                        <div class="info-label">Last</div>
+                        <div class="info-value" style="color: ${latencyColor}">
+                            ${device.latency !== null ? device.latency : '-'} ms
+                        </div>
                     </div>
                     
                     <div class="historical-stats">
