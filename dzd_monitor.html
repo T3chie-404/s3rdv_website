@@ -355,6 +355,26 @@
             font-weight: 500;
         }
 
+        /* Force Last and Deviation columns to be visible */
+        .latency-last {
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .deviation-symbol {
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .deviation-icon {
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
         .deviation-display {
             display: flex;
             align-items: center;
@@ -898,6 +918,10 @@
                     Last: ${device.latency !== null ? device.latency : '-'}
                     Deviation: ${getDeviationSymbol(device)}
                 `);
+                
+                // Log the actual HTML being generated
+                const testCard = createDeviceCard(device);
+                console.log('Generated HTML for first device:', testCard);
             }
 
             return `
