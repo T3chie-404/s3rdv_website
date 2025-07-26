@@ -364,7 +364,10 @@
             document.getElementById('totalDevices').textContent = devices ? devices.length : 0;
             document.getElementById('onlineDevices').textContent = devices ? devices.filter(d => d.status === 'online').length : 0;
             document.getElementById('uptime').textContent = formatUptime(health.uptime || stats.uptime);
-            document.getElementById('successRate').textContent = (stats.successRate || 100).toFixed(1) + '%';
+            
+            // Fix: Handle successRate as either string or number
+            const successRate = typeof stats.successRate === 'string' ? parseFloat(stats.successRate) : (stats.successRate || 100);
+            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
 
             // Update monitoring stats with improved formatting
             const monitoringStats = document.getElementById('monitoringStats');
