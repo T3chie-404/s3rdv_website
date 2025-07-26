@@ -901,28 +901,7 @@
             
             const historicalStats = device.historical_stats;
             
-            // Debug: Log historical stats for first device
-            if (device.pubkey === devices[0]?.pubkey) {
-                console.log('Historical stats for device:', device.display_name, historicalStats);
-                console.log('Device latency:', device.latency);
-                console.log('Deviation symbol:', getDeviationSymbol(device));
-                console.log('Device card HTML structure:', `
-                    Device Name: ${formatDeviceName(device.display_name)}
-                    Location: ${device.location || 'Unknown'}
-                    Type: ${device.type || 'Unknown'}
-                    IP: ${device.public_ip || 'Unknown'}
-                    Status: ${device.latency_status || 'Unknown'}
-                    Min: ${historicalStats && historicalStats.min ? historicalStats.min : '-'}
-                    Max: ${historicalStats && historicalStats.max ? historicalStats.max : '-'}
-                    Avg: ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'}
-                    Last: ${device.latency !== null ? device.latency : '-'}
-                    Deviation: ${getDeviationSymbol(device)}
-                `);
-                
-                // Log the actual HTML being generated
-                const testCard = createDeviceCard(device);
-                console.log('Generated HTML for first device:', testCard);
-            }
+            // No debugging to prevent infinite loops
 
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
