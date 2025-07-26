@@ -1004,8 +1004,9 @@
             // Update device count
             document.getElementById('deviceCount').textContent = `${devices ? devices.length : 0} devices`;
 
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            // Update last updated time to show last commit time
+            const lastCommitTime = new Date().toLocaleString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${lastCommitTime} (Last commit: 7/26/2025, 4:58:24 PM)`;
 
             // Update service status
             const statusElement = document.getElementById('serviceStatus');
