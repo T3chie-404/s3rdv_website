@@ -93,3 +93,7 @@ infrastructure:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+# Redirects for DZ Device Monitor
+redirects:
+  /dzd_monitor: /dzd_monitor.html
