@@ -260,8 +260,9 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 0.25rem;
-            min-width: 120px;
+            gap: 0.4rem;
+            min-width: 140px;
+            padding: 0.3rem;
         }
 
         .latency-grid .latency-min,
@@ -272,21 +273,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
+            padding: 0.6rem 0.4rem;
             background: var(--bg-tertiary);
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 0.7rem;
-            min-height: 40px;
+            min-height: 45px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .latency-grid .info-label {
-            font-size: 0.5rem;
-            margin-bottom: 0.1rem;
+            font-size: 0.6rem;
+            margin-bottom: 0.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .latency-grid .info-value {
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         /* Device card - Completely redone wide format */
@@ -805,7 +811,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.5</p>
+                        <p>DZ Device Monitor v1.0.6</p>
     </footer>
 
     <script>
@@ -875,8 +881,8 @@
                 const currentLatency = device.latency || 0;
                 const avgLatency = device.historical_stats.avg || 0;
                 
-                // Only show deviation if difference is over 2ms
-                if (Math.abs(currentLatency - avgLatency) > 2) {
+                // Only show deviation if difference is over 0.1ms
+                if (Math.abs(currentLatency - avgLatency) > 0.1) {
                     if (currentLatency > avgLatency) {
                         // Higher latency = red arrow up
                         return '🔴↗️';
