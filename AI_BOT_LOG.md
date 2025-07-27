@@ -872,3 +872,42 @@ function getLatencyColor(latency) {
 - Support both short-term (25h) and long-term (120 days) analysis
 
 --- 
+
+## 2025-07-27 - Improve Chart Y-Axis Scaling v1.0.33
+
+### **Changes Made:**
+- **Intelligent Y-Axis Scaling**: Implemented adaptive vertical scale based on actual data range
+- **Smart Padding Logic**: Different padding strategies based on data variation
+- **Edge Case Handling**: Proper handling of zero variation and insufficient data
+- **Adaptive Tick Count**: Dynamic tick spacing based on data range
+- **Error Handling**: Graceful handling when no valid latency data is available
+- **Version Update**: Incremented to v1.0.33
+
+### **Technical Details:**
+- **Y-Axis Bounds Calculation**:
+  - Zero variation: Fixed ±5ms range around single value
+  - Small range (<5ms): Fixed ±2ms padding
+  - Medium range (5-20ms): 20% padding above/below
+  - Large range (>20ms): 10% padding above/below
+- **Adaptive Tick Count**:
+  - Zero variation: 3 ticks
+  - Small range: 4-5 ticks
+  - Medium range: 6 ticks
+  - Large range: 8-10 ticks
+- **Data Validation**: Filters out null/undefined latency values
+- **Error States**: Shows "No Data Available" message when no valid data
+
+### **Benefits:**
+- **Better Visualization**: Charts now properly scale to show actual data variation
+- **Improved Readability**: Y-axis shows meaningful ranges instead of 0-1000ms
+- **Adaptive Display**: Handles both stable (low variation) and volatile (high variation) latency
+- **Professional Appearance**: Charts look more polished with appropriate scaling
+- **Edge Case Robustness**: Handles all data scenarios gracefully
+
+### **Purpose:**
+- Fix chart vertical scale to show meaningful data ranges
+- Improve chart readability and professional appearance
+- Handle edge cases like zero variation or missing data
+- Provide adaptive scaling for different latency patterns
+
+--- 

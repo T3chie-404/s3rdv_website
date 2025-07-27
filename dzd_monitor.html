@@ -1156,7 +1156,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.32</p>
+                        <p>DZ Device Monitor v1.0.33</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1691,8 +1691,44 @@
                 return date.toLocaleTimeString();
             });
             
-            const latencies = chartData.history.map(h => h.latency);
+            const latencies = chartData.history.map(h => h.latency).filter(l => l !== null && l !== undefined);
             const statuses = chartData.history.map(h => h.latency_status);
+            
+            // Calculate intelligent Y-axis scaling
+            if (latencies.length === 0) {
+                // No valid latency data
+                chartContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <h3>📊 No Data Available</h3>
+                        <p>No valid latency data found for the selected timeframe.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const minLatency = Math.min(...latencies);
+            const maxLatency = Math.max(...latencies);
+            const latencyRange = maxLatency - minLatency;
+            
+            // Determine Y-axis bounds with smart padding
+            let yMin, yMax;
+            if (latencyRange === 0) {
+                // No variation - use fixed range around the single value
+                yMin = Math.max(0, minLatency - 5);
+                yMax = maxLatency + 5;
+            } else if (latencyRange < 5) {
+                // Very small range - use fixed padding
+                yMin = Math.max(0, minLatency - 2);
+                yMax = maxLatency + 2;
+            } else if (latencyRange < 20) {
+                // Small range - use 20% padding
+                yMin = Math.max(0, minLatency - (latencyRange * 0.2));
+                yMax = maxLatency + (latencyRange * 0.2);
+            } else {
+                // Larger range - use 10% padding
+                yMin = Math.max(0, minLatency - (latencyRange * 0.1));
+                yMax = maxLatency + (latencyRange * 0.1);
+            }
             
             // Create color array based on status
             const colors = statuses.map(status => 
@@ -1774,11 +1810,27 @@
                                 text: 'Latency (ms)',
                                 color: 'rgba(255, 255, 255, 0.8)'
                             },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.6)'
-                            },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            // Intelligent scaling based on data range
+                            beginAtZero: false,
+                            min: yMin,
+                            max: yMax,
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                callback: function(value) {
+                                    return value + 'ms';
+                                },
+                                // Adaptive tick count based on data range
+                                maxTicksLimit: function() {
+                                    if (latencyRange === 0) return 3;
+                                    if (latencyRange < 5) return 4;
+                                    if (latencyRange < 20) return 5;
+                                    if (latencyRange < 50) return 6;
+                                    if (latencyRange < 100) return 8;
+                                    return 10;
+                                }
                             }
                         }
                     },
