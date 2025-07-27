@@ -599,4 +599,33 @@ function getLatencyColor(latency) {
 - Clean up tools menu by removing PeeringDB tool
 - Ensure all external tool links work properly
 
+---
+
+## 2025-07-26 - Add Search Functionality and API Calls Section
+
+### **Changes Made:**
+- **Search Box**: Added search input at the top of the dashboard
+- **Real-time Filtering**: Search across device name, location, type, IP address, and ASN
+- **Clear Button**: × button to clear search and show all devices
+- **Keyboard Support**: Press Escape to clear search
+- **Device Count**: Updates to show filtered device count
+- **API Calls Section**: Added new section showing the three main API endpoints
+- **Version Update**: Incremented to v1.0.22
+
+### **Technical Details:**
+- **Search Functionality**: `filterDevices()` function with real-time input filtering
+- **Search Fields**: Device name, location, type, IP address, ASN
+- **API Endpoints Displayed**:
+  - `GET /health` - Service health status and uptime
+  - `GET /api/devices` - Device list with ASN and location data
+  - `GET /api/stats` - Monitoring statistics and success rates
+- **CSS Styling**: Responsive grid layout with hover effects
+- **Integration**: Works with existing auto-refresh and device updates
+
+### **Purpose:**
+- Improve user experience with quick device filtering
+- Provide transparency about API endpoints used
+- Help with debugging and understanding data flow
+- Make it easier to find specific devices in large lists
+
 --- 

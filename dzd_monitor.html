@@ -276,6 +276,54 @@
             background: var(--bg-tertiary);
         }
 
+        /* API Calls Section Styles */
+        .api-calls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .api-call-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .api-call-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .api-method {
+            display: inline-block;
+            background: var(--accent-success);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-endpoint {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
         .devices-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -876,11 +924,33 @@
                 </div>
             </div>
         </div>
+
+        <!-- API Calls Section -->
+        <div class="devices-container fade-in">
+            <h2 class="devices-title">API Endpoints</h2>
+            <div class="api-calls-grid">
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/health</div>
+                    <div class="api-description">Service health status and uptime</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/api/devices</div>
+                    <div class="api-description">Device list with ASN and location data</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/api/stats</div>
+                    <div class="api-description">Monitoring statistics and success rates</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.21</p>
+                        <p>DZ Device Monitor v1.0.22</p>
     </footer>
 
     <script>
