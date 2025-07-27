@@ -653,4 +653,56 @@ function getLatencyColor(latency) {
 - Provide more accurate latency deviation detection
 - Improve user understanding of latency changes
 
+---
+
+## 2025-07-26 - Fix LAST Field Color Logic and Add Comprehensive Tooltips
+
+### **Changes Made:**
+- **LAST Field Color Logic**: Changed thresholds from 2ms/5ms to 1ms for green/red only
+- **Comprehensive Tooltips**: Added detailed tooltips for all latency measurements showing timeframes
+- **Timeframe Information**: All tooltips now show the observation period and number of measurements
+- **Version Update**: Incremented to v1.0.24
+
+### **Technical Details:**
+- **LAST Field Logic**: 
+  - Green: Within 1ms of previous measurement OR average
+  - Red: >1ms deviation from previous measurement OR average
+  - Removed yellow status (simplified to green/red only)
+- **New Tooltip Functions**:
+  - `getLastMeasurementTooltip()`: Shows current vs previous/average with deviation
+  - `getStatsTooltip()`: Shows Min/Max/Average with timeframe and observation count
+  - `getTrendTooltip()`: Shows trend percentage and timeframe
+- **Timeframe Information**:
+  - Historical Data: 600 observations (5 hours) for Min/Max/Average
+  - Trend Analysis: Last 20 observations (10 minutes) for trend calculation
+  - Previous Measurement: Second to last observation in history
+
+### **Purpose:**
+- Fix incorrect red colors when deviation is actually small (e.g., 241ms vs 242ms)
+- Provide clear timeframe information for all latency measurements
+- Help users understand what time periods the statistics represent
+- Improve debugging and monitoring accuracy
+
+---
+
+## 2025-07-26 - Increase Historical Data to 3000 Observations (25 Hours)
+
+### **Changes Made:**
+- **Historical Data Increase**: Changed from 600 to 3000 observations per device
+- **Timeframe Extension**: Extended from 5 hours to 25 hours of historical data
+- **Tooltip Updates**: Updated all tooltips to reflect new 25-hour timeframe
+- **Version Update**: Incremented to v1.0.25
+
+### **Technical Details:**
+- **Memory Impact**: +2.8 MB additional memory usage (696 KB → 3.48 MB)
+- **Disk Impact**: +3.3 MB additional disk space (836 KB → 4.18 MB)
+- **Performance**: No CPU or network impact
+- **Timeframe**: 3000 observations × 30 seconds = 25 hours of data
+
+### **Benefits:**
+- **Extended History**: 25 hours vs 5 hours of historical data
+- **Better Analysis**: More data for trend analysis and pattern recognition
+- **Minimal Resource Impact**: Very small memory and disk increase
+- **Same Performance**: No impact on API response times or calculations
+
 --- 

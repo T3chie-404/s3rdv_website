@@ -950,7 +950,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.23</p>
+                        <p>DZ Device Monitor v1.0.25</p>
     </footer>
 
     <script>
@@ -1009,12 +1009,10 @@
             if (device.historical_stats && device.historical_stats.previous !== null) {
                 const deviation = Math.abs(device.latency - device.historical_stats.previous);
                 
-                if (deviation <= 2) {
-                    return 'var(--accent-success)'; // Green: within 2ms of previous
-                } else if (deviation <= 5) {
-                    return 'var(--accent-warning)'; // Yellow: 2-5ms deviation from previous
+                if (deviation <= 1) {
+                    return 'var(--accent-success)'; // Green: within 1ms of previous
                 } else {
-                    return 'var(--accent-danger)'; // Red: >5ms deviation from previous
+                    return 'var(--accent-danger)'; // Red: >1ms deviation from previous
                 }
             }
             
@@ -1022,12 +1020,10 @@
             if (device.historical_stats && device.historical_stats.avg) {
                 const deviation = Math.abs(device.latency - device.historical_stats.avg);
                 
-                if (deviation <= 2) {
-                    return 'var(--accent-success)'; // Green: within 2ms of average
-                } else if (deviation <= 5) {
-                    return 'var(--accent-warning)'; // Yellow: 2-5ms deviation from average
+                if (deviation <= 1) {
+                    return 'var(--accent-success)'; // Green: within 1ms of average
                 } else {
-                    return 'var(--accent-danger)'; // Red: >5ms deviation from average
+                    return 'var(--accent-danger)'; // Red: >1ms deviation from average
                 }
             }
             
@@ -1035,11 +1031,71 @@
             return getLatencyColor(device.latency);
         }
 
-        // Get trend indicator
-        function getTrendIndicator(trend) {
-            if (!trend || trend === 0) return '<span class="trend-neutral">→</span>';
-            if (trend > 0) return `<span class="trend-up">↗ +${Math.abs(trend)}%</span>`;
-            return `<span class="trend-down">↘ -${Math.abs(trend)}%</span>`;
+        // Get "Last" measurement tooltip
+        function getLastMeasurementTooltip(device) {
+            if (!device.latency || device.latency === null) {
+                return 'No latency data available';
+            }
+            
+            const timeframe = 'Last 3000 observations (25 hours)';
+            
+            // Check if we have previous measurement to compare against
+            if (device.historical_stats && device.historical_stats.previous !== null) {
+                const deviation = Math.abs(device.latency - device.historical_stats.previous);
+                
+                if (deviation <= 1) {
+                    return `Current: ${device.latency}ms\nPrevious: ${device.historical_stats.previous}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 1ms of previous measurement\nTimeframe: ${timeframe}`;
+                } else {
+                    return `Current: ${device.latency}ms\nPrevious: ${device.historical_stats.previous}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >1ms deviation from previous measurement\nTimeframe: ${timeframe}`;
+                }
+            }
+            
+            // Fallback to average comparison if no previous measurement
+            if (device.historical_stats && device.historical_stats.avg) {
+                const deviation = Math.abs(device.latency - device.historical_stats.avg);
+                
+                if (deviation <= 1) {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 1ms of average\nTimeframe: ${timeframe}`;
+                } else {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >1ms deviation from average\nTimeframe: ${timeframe}`;
+                }
+            }
+            
+            return `Current: ${device.latency}ms\nTimeframe: ${timeframe}`;
+        }
+
+        // Get Min/Max/Average tooltip
+        function getStatsTooltip(device, statType) {
+            if (!device.historical_stats) {
+                return 'No historical data available';
+            }
+            
+            const timeframe = 'Last 3000 observations (25 hours)';
+            const observations = device.historical_stats.observations || 0;
+            
+            switch(statType) {
+                case 'min':
+                    return `Minimum: ${device.historical_stats.min}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                case 'max':
+                    return `Maximum: ${device.historical_stats.max}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                case 'avg':
+                    return `Average: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                default:
+                    return `Timeframe: ${timeframe}\nObservations: ${observations}`;
+            }
+        }
+
+        // Get trend tooltip
+        function getTrendTooltip(device) {
+            if (!device.historical_stats || device.historical_stats.trend === 0) {
+                return 'No significant trend detected\nTimeframe: Last 20 observations (10 minutes)';
+            }
+            
+            const trend = device.historical_stats.trend;
+            const direction = trend > 0 ? 'increasing' : 'decreasing';
+            const timeframe = 'Last 20 observations (10 minutes)';
+            
+            return `Trend: ${Math.abs(trend)}% ${direction}\nTimeframe: ${timeframe}\nRecent vs Previous 10 observations`;
         }
 
         // Get deviation symbol with proper thresholds and icons
@@ -1272,26 +1328,26 @@
                     <div class="latency-grid">
                         <div class="latency-min">
                             <div class="info-label">Min</div>
-                            <div class="info-value">
+                            <div class="info-value" title="${getStatsTooltip(device, 'min')}">
                                 ${historicalStats && historicalStats.min ? historicalStats.min : '-'}ms
                             </div>
                         </div>
                         <div class="latency-max">
                             <div class="info-label">Max</div>
-                            <div class="info-value">
+                            <div class="info-value" title="${getStatsTooltip(device, 'max')}">
                                 ${historicalStats && historicalStats.max ? historicalStats.max : '-'}ms
                             </div>
                         </div>
                         <div class="latency-last">
                             <div class="info-label">Last</div>
                             <div class="info-value" style="color: ${lastMeasurementColor}" 
-                                 title="🟢 Green: Within 2ms of previous measurement&#10;🟡 Yellow: 2-5ms deviation from previous&#10;🔴 Red: >5ms deviation from previous">
+                                 title="${getLastMeasurementTooltip(device)}">
                                 ${device.latency !== null ? device.latency : '-'}ms
                             </div>
                         </div>
                         <div class="latency-avg">
                             <div class="info-label">Avg</div>
-                            <div class="info-value">
+                            <div class="info-value" title="${getStatsTooltip(device, 'avg')}">
                                 ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'}ms
                             </div>
                         </div>
@@ -1301,7 +1357,7 @@
                     <div class="deviation-symbol">
                         <div class="info-label">Deviation</div>
                         <div class="deviation-icon" style="font-size: 1rem; text-align: center;" 
-                             title="${getDeviationTooltip(device)}">
+                             title="${getTrendTooltip(device)}">
                             ${getDeviationSymbol(device)}
                         </div>
                     </div>
