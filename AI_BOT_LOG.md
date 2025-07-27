@@ -629,3 +629,28 @@ function getLatencyColor(latency) {
 - Make it easier to find specific devices in large lists
 
 --- 
+
+## 2025-07-26 - Fix LAST Field Color Logic
+
+### **Changes Made:**
+- **Backend Enhancement**: Added `previous` measurement to `historical_stats` in backend
+- **Frontend Logic**: Updated `getLastMeasurementColor()` to compare against previous measurement first
+- **Fallback Logic**: Falls back to average comparison if no previous measurement available
+- **Tooltip Accuracy**: Fixed tooltip to correctly reflect "previous measurement" comparison
+- **Version Update**: Incremented to v1.0.23
+
+### **Technical Details:**
+- **Backend Change**: `calculateDeviceStats()` now includes `previous: history[history.length - 2].latency`
+- **Frontend Logic**: 
+  - First tries to compare current latency against previous measurement
+  - Falls back to average comparison if no previous measurement
+  - Maintains same 2ms/5ms thresholds for green/yellow/red colors
+- **Tooltip Fix**: Now correctly states "Within 2ms of previous measurement"
+
+### **Purpose:**
+- Fix incorrect red colors on LAST field that should be green
+- Make tooltip match actual behavior
+- Provide more accurate latency deviation detection
+- Improve user understanding of latency changes
+
+--- 
