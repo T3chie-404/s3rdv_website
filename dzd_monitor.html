@@ -225,6 +225,57 @@
             font-size: 0.9rem;
         }
 
+        /* Search Box Styles */
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: bold;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-clear:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
         .devices-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -741,6 +792,14 @@
     </header>
 
     <div class="container">
+        <!-- Search Box -->
+        <div class="search-container fade-in">
+            <div class="search-wrapper">
+                <input type="text" id="searchBox" placeholder="Search devices by name, location, type, IP, or ASN..." class="search-input">
+                <div class="search-clear" id="searchClear" style="display: none;">×</div>
+            </div>
+        </div>
+        
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card fade-in">
@@ -1206,6 +1265,11 @@
                     }
                 });
             }
+            
+            // Apply search filter after updating devices
+            if (typeof filterDevices === 'function') {
+                filterDevices();
+            }
         }
 
         // Update dashboard
@@ -1243,6 +1307,77 @@
                 statusElement.style.color = 'var(--accent-danger)';
             }
         }
+
+        // Search functionality
+        let searchTerm = '';
+        
+        function filterDevices() {
+            const searchBox = document.getElementById('searchBox');
+            const searchClear = document.getElementById('searchClear');
+            const deviceCards = document.querySelectorAll('.device-card');
+            
+            searchTerm = searchBox.value.toLowerCase().trim();
+            
+            // Show/hide clear button
+            if (searchTerm) {
+                searchClear.style.display = 'block';
+            } else {
+                searchClear.style.display = 'none';
+            }
+            
+            // Filter devices
+            let visibleCount = 0;
+            deviceCards.forEach(card => {
+                const deviceName = (card.querySelector('.device-name')?.textContent || '').toLowerCase();
+                const deviceLocation = (card.querySelector('.device-location')?.textContent || '').toLowerCase();
+                const deviceType = (card.querySelector('.device-type')?.textContent || '').toLowerCase();
+                const deviceIp = (card.querySelector('.device-ip')?.textContent || '').toLowerCase();
+                const deviceAsn = (card.querySelector('.device-asn')?.textContent || '').toLowerCase();
+                
+                const matches = deviceName.includes(searchTerm) ||
+                              deviceLocation.includes(searchTerm) ||
+                              deviceType.includes(searchTerm) ||
+                              deviceIp.includes(searchTerm) ||
+                              deviceAsn.includes(searchTerm);
+                
+                if (matches) {
+                    card.style.display = 'grid';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update device count
+            const deviceCount = document.getElementById('deviceCount');
+            if (deviceCount) {
+                deviceCount.textContent = `${visibleCount} device${visibleCount !== 1 ? 's' : ''}`;
+            }
+        }
+        
+        // Search event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            const searchClear = document.getElementById('searchClear');
+            
+            if (searchBox) {
+                searchBox.addEventListener('input', filterDevices);
+                searchBox.addEventListener('keyup', function(e) {
+                    if (e.key === 'Escape') {
+                        searchBox.value = '';
+                        filterDevices();
+                    }
+                });
+            }
+            
+            if (searchClear) {
+                searchClear.addEventListener('click', function() {
+                    searchBox.value = '';
+                    filterDevices();
+                    searchBox.focus();
+                });
+            }
+        });
 
         // Fetch data from API
         async function fetchData() {
