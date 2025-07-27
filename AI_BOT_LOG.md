@@ -728,4 +728,30 @@ function getLatencyColor(latency) {
 - Ensure proper comparison against previous measurement
 - Improve debugging and monitoring accuracy
 
+---
+
+## 2025-07-26 - Update API Endpoints Display
+
+### **Changes Made:**
+- **Base URL Display**: Added prominent display of `https://api.s3rdv.com` base URL
+- **Complete Endpoint List**: Added all available API endpoints that were missing
+- **Enhanced Descriptions**: Improved descriptions for each endpoint
+- **Version Update**: Incremented to v1.0.27
+
+### **Technical Details:**
+- **Added Endpoints**:
+  - `/health/detailed` - Detailed health with DoubleZero CLI status
+  - `/health/ready` - Readiness probe for Kubernetes
+  - `/health/live` - Liveness probe for Kubernetes
+  - `/api/test-slack` (GET) - Test Slack integration
+  - `/api/test-slack` (POST) - Test Slack integration
+- **Base URL Display**: Styled prominently with accent colors
+- **Grid Layout**: Expanded to show all 8 available endpoints
+
+### **Purpose:**
+- Provide complete transparency about all available API endpoints
+- Show the base URL prominently for easy reference
+- Help with debugging and API integration
+- Improve developer experience with comprehensive endpoint documentation
+
 --- 

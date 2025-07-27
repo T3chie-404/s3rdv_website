@@ -928,11 +928,30 @@
         <!-- API Calls Section -->
         <div class="devices-container fade-in">
             <h2 class="devices-title">API Endpoints</h2>
+            <div style="text-align: center; margin-bottom: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--accent-primary);">
+                <strong style="color: var(--accent-primary);">Base URL:</strong> 
+                <span style="font-family: 'Courier New', monospace; color: var(--text-primary);">https://api.s3rdv.com</span>
+            </div>
             <div class="api-calls-grid">
                 <div class="api-call-card">
                     <div class="api-method">GET</div>
                     <div class="api-endpoint">/health</div>
-                    <div class="api-description">Service health status and uptime</div>
+                    <div class="api-description">Basic health status and uptime</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/health/detailed</div>
+                    <div class="api-description">Detailed health with DoubleZero CLI status</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/health/ready</div>
+                    <div class="api-description">Readiness probe for Kubernetes</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/health/live</div>
+                    <div class="api-description">Liveness probe for Kubernetes</div>
                 </div>
                 <div class="api-call-card">
                     <div class="api-method">GET</div>
@@ -944,13 +963,23 @@
                     <div class="api-endpoint">/api/stats</div>
                     <div class="api-description">Monitoring statistics and success rates</div>
                 </div>
+                <div class="api-call-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-endpoint">/api/test-slack</div>
+                    <div class="api-description">Test Slack integration (sends test message)</div>
+                </div>
+                <div class="api-call-card">
+                    <div class="api-method">POST</div>
+                    <div class="api-endpoint">/api/test-slack</div>
+                    <div class="api-description">Test Slack integration (sends test message)</div>
+                </div>
             </div>
         </div>
     </div>
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.26</p>
+                        <p>DZ Device Monitor v1.0.27</p>
     </footer>
 
     <script>
