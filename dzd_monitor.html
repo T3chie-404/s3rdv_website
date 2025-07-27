@@ -821,7 +821,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.18</p>
+                        <p>DZ Device Monitor v1.0.19</p>
     </footer>
 
     <script>
@@ -1347,6 +1347,11 @@
                    class="tool-item ${!hasAsn ? 'disabled' : ''}" 
                    target="_blank">
                     Cloudflare Radar
+                </a>
+                <a href="${hasAsn ? `https://bgpview.io/asn/${asn.replace('AS', '')}#graph` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    BGPView Graphs
                 </a>
                 <a href="${hasAsn ? `https://www.ihr.live/en/network/${asn}` : '#'}" 
                    class="tool-item ${!hasAsn ? 'disabled' : ''}" 
