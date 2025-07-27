@@ -273,12 +273,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.8rem 0.6rem;
+            padding: 0.6rem 0.4rem;
             background: var(--bg-tertiary);
             border-radius: 10px;
             font-size: 0.7rem;
-            min-height: 50px;
+            min-height: 45px;
             border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
         }
 
         .latency-grid .info-label {
@@ -290,9 +291,11 @@
         }
 
         .latency-grid .info-value {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--text-primary);
+            text-align: center;
+            line-height: 1.2;
         }
 
         /* Device card - Completely redone wide format */
@@ -413,6 +416,8 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            align-items: center;
+            justify-content: center;
         }
 
         .deviation-icon {
@@ -811,7 +816,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.7</p>
+                        <p>DZ Device Monitor v1.0.8</p>
     </footer>
 
     <script>
@@ -1073,25 +1078,25 @@
                         <div class="latency-min">
                             <div class="info-label">Min</div>
                             <div class="info-value">
-                                ${historicalStats && historicalStats.min ? historicalStats.min : '-'} ms
+                                ${historicalStats && historicalStats.min ? historicalStats.min : '-'}ms
                             </div>
                         </div>
                         <div class="latency-max">
                             <div class="info-label">Max</div>
                             <div class="info-value">
-                                ${historicalStats && historicalStats.max ? historicalStats.max : '-'} ms
+                                ${historicalStats && historicalStats.max ? historicalStats.max : '-'}ms
                             </div>
                         </div>
                         <div class="latency-last">
                             <div class="info-label">Last</div>
                             <div class="info-value" style="color: ${latencyColor}">
-                                ${device.latency !== null ? device.latency : '-'} ms
+                                ${device.latency !== null ? device.latency : '-'}ms
                             </div>
                         </div>
                         <div class="latency-avg">
                             <div class="info-label">Avg</div>
                             <div class="info-value">
-                                ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'} ms
+                                ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'}ms
                             </div>
                         </div>
                     </div>
@@ -1099,7 +1104,7 @@
                     <!-- DEVIATION -->
                     <div class="deviation-symbol">
                         <div class="info-label">Deviation</div>
-                        <div class="deviation-icon" style="font-size: 1.2rem;">
+                        <div class="deviation-icon" style="font-size: 1rem; text-align: center;">
                             ${getDeviationSymbol(device)}
                         </div>
                     </div>
