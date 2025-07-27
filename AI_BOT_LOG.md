@@ -705,4 +705,27 @@ function getLatencyColor(latency) {
 - **Minimal Resource Impact**: Very small memory and disk increase
 - **Same Performance**: No impact on API response times or calculations
 
+---
+
+## 2025-07-26 - Fix LAST Field Tooltip and Color Logic
+
+### **Changes Made:**
+- **Backend Fix**: Fixed variable name conflict in `calculateDeviceStats()` that was causing `previous` measurement to be `undefined`
+- **Frontend Fix**: Enhanced null/undefined checks in tooltip and color logic
+- **Tooltip Fix**: Now properly displays previous measurement and deviation values
+- **Color Fix**: LAST field now correctly shows green for ≤1ms deviation
+- **Version Update**: Incremented to v1.0.26
+
+### **Technical Details:**
+- **Backend Issue**: Variable `previous` was being shadowed by another `previous` variable in trend calculation
+- **Frontend Issue**: Tooltip was showing "undefinedms" and "NaNms" due to missing null checks
+- **Fix**: Renamed trend calculation variable to `previousSlice` to avoid conflict
+- **Enhanced Checks**: Added `!== undefined` checks in addition to `!== null` checks
+
+### **Purpose:**
+- Fix tooltip showing incorrect "undefinedms" and "NaNms" values
+- Fix LAST field showing red when it should be green (≤1ms deviation)
+- Ensure proper comparison against previous measurement
+- Improve debugging and monitoring accuracy
+
 --- 

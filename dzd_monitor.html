@@ -950,7 +950,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.25</p>
+                        <p>DZ Device Monitor v1.0.26</p>
     </footer>
 
     <script>
@@ -1006,7 +1006,7 @@
             if (!device.latency || device.latency === null) return 'var(--text-muted)';
             
             // Check if we have previous measurement to compare against
-            if (device.historical_stats && device.historical_stats.previous !== null) {
+            if (device.historical_stats && device.historical_stats.previous !== null && device.historical_stats.previous !== undefined) {
                 const deviation = Math.abs(device.latency - device.historical_stats.previous);
                 
                 if (deviation <= 1) {
@@ -1040,7 +1040,7 @@
             const timeframe = 'Last 3000 observations (25 hours)';
             
             // Check if we have previous measurement to compare against
-            if (device.historical_stats && device.historical_stats.previous !== null) {
+            if (device.historical_stats && device.historical_stats.previous !== null && device.historical_stats.previous !== undefined) {
                 const deviation = Math.abs(device.latency - device.historical_stats.previous);
                 
                 if (deviation <= 1) {
