@@ -1113,8 +1113,8 @@
                         <div class="stat-label">Data Points</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="failedPercentage">-</div>
-                        <div class="stat-label">Failed %</div>
+                        <div class="stat-value" id="firstData">-</div>
+                        <div class="stat-label">First Data</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="alertsSent">-</div>
@@ -1183,6 +1183,10 @@
                         <span class="info-label">Current Latency:</span>
                         <span id="modalDeviceLatency">-</span>
                     </div>
+                    <div class="info-row">
+                        <span class="info-label">Earliest Observed:</span>
+                        <span id="modalDeviceEarliest">-</span>
+                    </div>
                 </div>
                 
                 <div class="history-controls">
@@ -1204,7 +1208,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.36</p>
+                        <p>DZ Device Monitor v1.0.37</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1961,7 +1965,11 @@
             // Update new persistent stats
             document.getElementById('totalObservations').textContent = stats.totalObservations || 0;
             document.getElementById('totalDataPoints').textContent = stats.totalDataPoints || 0;
-            document.getElementById('failedPercentage').textContent = (stats.failedPercentage || 0) + '%';
+            
+            // Format first data timestamp
+            const firstData = stats.firstObservation ? new Date(stats.firstObservation).toLocaleDateString() : '-';
+            document.getElementById('firstData').textContent = firstData;
+            
             document.getElementById('alertsSent').textContent = stats.alertsSent || 0;
 
             // Update device count

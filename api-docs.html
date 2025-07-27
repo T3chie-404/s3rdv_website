@@ -557,8 +557,8 @@
                     <div class="response-example">{
   "success": true,
   "data": {
-    "totalObservations": 120000,
-    "totalDataPoints": 120000,
+    "totalObservations": 24000,
+    "totalDataPoints": 1200,
     "failedPercentage": "0.5",
     "alertsSent": 12,
     "deviceCount": 20,
@@ -602,14 +602,14 @@
 
             <h3>Monitoring Stats Object</h3>
             <div class="response-example">{
-  "totalObservations": number,  // Total observations ever recorded
-  "totalDataPoints": number,    // Total data points in database
+  "totalObservations": number,  // Total individual ping measurements recorded
+  "totalDataPoints": number,    // Total 30-second monitoring cycles since launch
   "failedPercentage": "string", // Failed observations as percentage
   "alertsSent": number,         // Number of alerts sent
   "deviceCount": number,        // Number of devices
   "lastCheck": "string",        // Last check timestamp
   "startTime": "string",        // Service start timestamp
-  "firstObservation": "string", // First observation timestamp
+  "firstObservation": "string", // First observation timestamp (when data collection started)
   "lastObservation": "string"   // Last observation timestamp
 }</div>
         </div>
