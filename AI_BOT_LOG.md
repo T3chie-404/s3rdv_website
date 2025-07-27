@@ -822,3 +822,53 @@ function getLatencyColor(latency) {
 - **Professional Branding**: S3RDV LLC copyright adds professional touch
 
 --- 
+
+## 2025-07-27 - Implement Latency History Charts v1.0.32
+
+### **Changes Made:**
+- **Backend Chart API**: Created new `/api/devices/{deviceId}/history` endpoint with timeframe filtering
+- **Chart.js Integration**: Added Chart.js CDN to dashboard for interactive charts
+- **Modal Chart Implementation**: Replaced placeholder with functional latency history charts
+- **Timeframe Selection**: 25h, 7d, 30d, All History buttons with real-time chart updates
+- **Chart Features**: 
+  - Interactive line charts with smooth animations
+  - Color-coded points (green for online, red for offline)
+  - Hover tooltips showing latency and status
+  - Statistics panel showing min/max/avg for selected timeframe
+  - Responsive design with dark theme styling
+- **Loading States**: Added spinner animation and error handling
+- **Version Update**: Incremented to v1.0.32
+
+### **Technical Details:**
+- **Backend Route**: `src/routes/devices.js` with history endpoint
+- **API Endpoint**: `GET /api/devices/{deviceId}/history?timeframe={25h|7d|30d|all}`
+- **Chart Library**: Chart.js v4 with custom dark theme configuration
+- **Data Processing**: Real-time filtering of historical data by timeframe
+- **Chart Features**:
+  - Line chart with filled area and tension
+  - Point colors based on device status
+  - Custom tooltips with latency and status info
+  - Statistics panel with min/max/avg/count
+  - Smooth animations and responsive design
+
+### **Chart Capabilities:**
+- **25 Hours**: Shows last 25 hours of data (3000 observations)
+- **7 Days**: Shows last 7 days of data (20160 observations)  
+- **30 Days**: Shows last 30 days of data (86400 observations)
+- **All History**: Shows complete historical data (up to 120 days)
+
+### **User Experience:**
+- Click 📊 button on any device card to open detailed modal
+- Select timeframe buttons to change chart data range
+- Interactive chart with hover tooltips and zoom capabilities
+- Statistics panel shows data summary for selected timeframe
+- Loading states and error handling for smooth experience
+
+### **Purpose:**
+- Provide detailed latency history visualization
+- Enable trend analysis across different timeframes
+- Show device performance patterns over time
+- Enhance monitoring capabilities with interactive charts
+- Support both short-term (25h) and long-term (120 days) analysis
+
+--- 
