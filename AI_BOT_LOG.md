@@ -580,4 +580,23 @@ function getLatencyColor(latency) {
 - Provide clear green/red status indication
 - Improve user understanding of device status
 
+---
+
+## 2025-07-26 - Fix IHR Syntax and Remove PeeringDB Tool
+
+### **Changes Made:**
+- **IHR URL Fix**: Updated IHR link to use correct syntax `https://www.ihr.live/en/network/AS${asn.replace('AS', '')}`
+- **PeeringDB Removal**: Removed PeeringDB Network tool from tools menu
+- **Version Update**: Incremented to v1.0.21
+
+### **Technical Details:**
+- **IHR Syntax**: Changed from `${asn}` to `AS${asn.replace('AS', '')}` to match correct format
+- **Tools Menu**: Removed PeeringDB Network link completely
+- **URL Format**: Now correctly generates URLs like `https://www.ihr.live/en/network/AS1299`
+
+### **Purpose:**
+- Fix IHR links to work correctly with proper ASN format
+- Clean up tools menu by removing PeeringDB tool
+- Ensure all external tool links work properly
+
 --- 
