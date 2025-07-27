@@ -754,4 +754,30 @@ function getLatencyColor(latency) {
 - Help with debugging and API integration
 - Improve developer experience with comprehensive endpoint documentation
 
+---
+
+## 2025-07-26 - Create Dedicated API Documentation Page
+
+### **Changes Made:**
+- **New API Docs Page**: Created `api-docs.html` accessible at `api.s3rdv.com/docs`
+- **Comprehensive Documentation**: Complete API reference with examples and data structures
+- **Dashboard Cleanup**: Removed API endpoints section from dashboard
+- **Documentation Link**: Added prominent link to API docs from dashboard
+- **Version Update**: Incremented to v1.0.28
+
+### **Technical Details:**
+- **New Page**: `api-docs.html` with beautiful dark theme matching dashboard
+- **Complete Coverage**: All 8 API endpoints with curl examples and response schemas
+- **Data Structures**: Detailed documentation of Device and Monitoring Stats objects
+- **Features Section**: Overview of historical data, trend analysis, ASN lookup, alerts
+- **Rate Limiting**: Documentation of 500 requests per 15 minutes limit
+- **Navigation**: Links back to dashboard and S3RDV website
+
+### **Benefits:**
+- **Cleaner Dashboard**: Removed cluttered API section for better focus on monitoring
+- **Professional Documentation**: Dedicated page with comprehensive API reference
+- **Better Developer Experience**: Complete examples and data structure documentation
+- **Easy Access**: Prominent link from dashboard to documentation
+- **Scalable**: Easy to add more documentation sections in the future
+
 --- 
