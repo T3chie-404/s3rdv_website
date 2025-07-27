@@ -1150,7 +1150,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.30</p>
+                        <p>DZ Device Monitor v1.0.31</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1229,22 +1229,20 @@
                 return 'No latency data available';
             }
             
-            const timeframe = 'Last 120000 observations (120 days)';
-            
             // Compare against average
             if (device.historical_stats && device.historical_stats.avg) {
                 const deviation = device.latency - device.historical_stats.avg;
                 
                 if (deviation <= 2) {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 2ms of average (Green)\nTimeframe: ${timeframe}`;
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: Within 2ms of average (Green)`;
                 } else if (deviation <= 5) {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: 2-5ms higher than average (Orange)\nTimeframe: ${timeframe}`;
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: 2-5ms higher than average (Orange)`;
                 } else {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >5ms higher than average (Red)\nTimeframe: ${timeframe}`;
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: >5ms higher than average (Red)`;
                 }
             }
             
-            return `Current: ${device.latency}ms\nTimeframe: ${timeframe}`;
+            return `Current: ${device.latency}ms`;
         }
 
         // Get Min/Max/Average tooltip
@@ -1253,8 +1251,8 @@
                 return 'No historical data available';
             }
             
-            const timeframe = 'Last 120000 observations (120 days)';
-            const observations = device.historical_stats.observations || 0;
+            const timeframe = 'Last 24 hours';
+            const observations = device.historical_stats.observations24h || 0;
             
             switch(statType) {
                 case 'min':
@@ -1525,9 +1523,9 @@
                     
                     <!-- DEVIATION -->
                     <div class="deviation-symbol">
-                        <div class="info-label">Deviation</div>
+                        <div class="info-label">24hr Deviation</div>
                         <div class="deviation-icon" style="font-size: 1rem; text-align: center;" 
-                             title="${getTrendTooltip(device)}">
+                             title="${getDeviationTooltip(device)}">
                             ${getDeviationSymbol(device)}
                         </div>
                     </div>
