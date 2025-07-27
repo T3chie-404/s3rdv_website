@@ -681,6 +681,151 @@
             transform: translateY(-1px);
         }
 
+        /* Expand button */
+        .expand-button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .expand-button:hover {
+            background: var(--accent-purple);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--accent-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-danger);
+            color: var(--bg-primary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .device-info {
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .history-controls {
+            margin-bottom: 2rem;
+        }
+
+        .history-controls h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        .timeframe-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .timeframe-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .timeframe-btn:hover,
+        .timeframe-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .chart-container {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+        }
+
         .tools-dropdown {
             position: fixed;
             background: var(--bg-secondary);
@@ -949,11 +1094,64 @@
                 </a>
             </div>
         </div>
+        </div>
+
+    <!-- Device Detail Modal -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalDeviceName">Device Details</h2>
+                <button class="modal-close" onclick="closeDeviceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">Device Code:</span>
+                        <span id="modalDeviceCode">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Location:</span>
+                        <span id="modalDeviceLocation">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Type:</span>
+                        <span id="modalDeviceType">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">IP Address:</span>
+                        <span id="modalDeviceIP">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ASN:</span>
+                        <span id="modalDeviceASN">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Current Latency:</span>
+                        <span id="modalDeviceLatency">-</span>
+                    </div>
+                </div>
+                
+                <div class="history-controls">
+                    <h3>Latency History</h3>
+                    <div class="timeframe-buttons">
+                        <button class="timeframe-btn active" onclick="changeTimeframe('25h')">25 Hours</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('7d')">7 Days</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('30d')">30 Days</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('all')">All History</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="latencyChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.29</p>
+                        <p>DZ Device Monitor v1.0.30</p>
+        <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
     <script>
@@ -1004,29 +1202,20 @@
             return 'var(--accent-danger)';
         }
 
-        // Get "Last" measurement color based on deviation from previous measurement
+        // Get "Last" measurement color based on deviation from average
         function getLastMeasurementColor(device) {
             if (!device.latency || device.latency === null) return 'var(--text-muted)';
             
-            // Check if we have previous measurement to compare against
-            if (device.historical_stats && device.historical_stats.previous !== null && device.historical_stats.previous !== undefined) {
-                const deviation = Math.abs(device.latency - device.historical_stats.previous);
-                
-                if (deviation <= 1) {
-                    return 'var(--accent-success)'; // Green: within 1ms of previous
-                } else {
-                    return 'var(--accent-danger)'; // Red: >1ms deviation from previous
-                }
-            }
-            
-            // Fallback to average comparison if no previous measurement
+            // Compare against average
             if (device.historical_stats && device.historical_stats.avg) {
-                const deviation = Math.abs(device.latency - device.historical_stats.avg);
+                const deviation = device.latency - device.historical_stats.avg;
                 
-                if (deviation <= 1) {
-                    return 'var(--accent-success)'; // Green: within 1ms of average
+                if (deviation <= 2) {
+                    return 'var(--accent-success)'; // Green: within 2ms of average
+                } else if (deviation <= 5) {
+                    return 'var(--accent-warning)'; // Orange: 2-5ms higher than average
                 } else {
-                    return 'var(--accent-danger)'; // Red: >1ms deviation from average
+                    return 'var(--accent-danger)'; // Red: >5ms higher than average
                 }
             }
             
@@ -1040,27 +1229,18 @@
                 return 'No latency data available';
             }
             
-            const timeframe = 'Last 3000 observations (25 hours)';
+            const timeframe = 'Last 120000 observations (120 days)';
             
-            // Check if we have previous measurement to compare against
-            if (device.historical_stats && device.historical_stats.previous !== null && device.historical_stats.previous !== undefined) {
-                const deviation = Math.abs(device.latency - device.historical_stats.previous);
-                
-                if (deviation <= 1) {
-                    return `Current: ${device.latency}ms\nPrevious: ${device.historical_stats.previous}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 1ms of previous measurement\nTimeframe: ${timeframe}`;
-                } else {
-                    return `Current: ${device.latency}ms\nPrevious: ${device.historical_stats.previous}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >1ms deviation from previous measurement\nTimeframe: ${timeframe}`;
-                }
-            }
-            
-            // Fallback to average comparison if no previous measurement
+            // Compare against average
             if (device.historical_stats && device.historical_stats.avg) {
-                const deviation = Math.abs(device.latency - device.historical_stats.avg);
+                const deviation = device.latency - device.historical_stats.avg;
                 
-                if (deviation <= 1) {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 1ms of average\nTimeframe: ${timeframe}`;
+                if (deviation <= 2) {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: Within 2ms of average (Green)\nTimeframe: ${timeframe}`;
+                } else if (deviation <= 5) {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: 2-5ms higher than average (Orange)\nTimeframe: ${timeframe}`;
                 } else {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >1ms deviation from average\nTimeframe: ${timeframe}`;
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nDeviation: ${deviation.toFixed(1)}ms\nStatus: >5ms higher than average (Red)\nTimeframe: ${timeframe}`;
                 }
             }
             
@@ -1073,7 +1253,7 @@
                 return 'No historical data available';
             }
             
-            const timeframe = 'Last 3000 observations (25 hours)';
+            const timeframe = 'Last 120000 observations (120 days)';
             const observations = device.historical_stats.observations || 0;
             
             switch(statType) {
@@ -1101,28 +1281,18 @@
             return `Trend: ${Math.abs(trend)}% ${direction}\nTimeframe: ${timeframe}\nRecent vs Previous 10 observations`;
         }
 
-        // Get deviation symbol with proper thresholds and icons
+        // Get deviation symbol showing greatest observed deviation from average
         function getDeviationSymbol(device) {
             if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
                 return '❌ Offline';
             }
             
-            // Check for significant deviation (over 0.1ms difference)
-            if (device.historical_stats && device.historical_stats.trend !== 0) {
-                const trend = device.historical_stats.trend;
-                const currentLatency = device.latency || 0;
-                const avgLatency = device.historical_stats.avg || 0;
-                const deviation = Math.abs(currentLatency - avgLatency);
+            // Show greatest observed deviation from average over last 600 measurements
+            if (device.historical_stats && device.historical_stats.maxDeviation !== undefined) {
+                const maxDeviation = device.historical_stats.maxDeviation;
                 
-                // Only show deviation if difference is over 0.1ms
-                if (deviation > 0.1) {
-                    if (currentLatency > avgLatency) {
-                        // Higher latency = red arrow up
-                        return `🔴↗️ ${deviation.toFixed(1)}ms`;
-                    } else {
-                        // Lower latency = green arrow down
-                        return `🟢↘️ ${deviation.toFixed(1)}ms`;
-                    }
+                if (maxDeviation > 0.1) {
+                    return `📊 ${maxDeviation.toFixed(1)}ms`;
                 }
             }
             
@@ -1135,18 +1305,15 @@
                 return 'Device is unreachable or offline';
             }
             
-            if (device.historical_stats && device.historical_stats.trend !== 0) {
-                const currentLatency = device.latency || 0;
-                const avgLatency = device.historical_stats.avg || 0;
-                const deviation = Math.abs(currentLatency - avgLatency);
+            if (device.historical_stats && device.historical_stats.maxDeviation !== undefined) {
+                const maxDeviation = device.historical_stats.maxDeviation;
                 
-                if (deviation > 0.1) {
-                    const direction = currentLatency > avgLatency ? 'higher' : 'lower';
-                    return `Deviation: ${deviation.toFixed(1)}ms ${direction} than average (${avgLatency.toFixed(1)}ms)`;
+                if (maxDeviation > 0.1) {
+                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 600 observations (5 hours)`;
                 }
             }
             
-            return 'Latency is stable (within 0.1ms of average)';
+            return 'Latency is stable (greatest deviation < 0.1ms from average)';
         }
 
         // Get status class based on reachability
@@ -1372,6 +1539,9 @@
                             <button class="tools-button" onclick="openToolsMenu('${device.pubkey}', '${device.public_ip}', '${device.asn || ''}')">
                                 Tools
                             </button>
+                            <button class="expand-button" onclick="expandDevice('${device.pubkey}')" title="View detailed history">
+                                📊
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1413,6 +1583,77 @@
                 filterDevices();
             }
         }
+
+        // Modal functionality
+        let currentDevice = null;
+        let currentTimeframe = '25h';
+
+        function expandDevice(deviceId) {
+            const device = devices.find(d => d.pubkey === deviceId);
+            if (!device) return;
+            
+            currentDevice = device;
+            showDeviceModal(device);
+        }
+
+        function showDeviceModal(device) {
+            // Populate modal with device info
+            document.getElementById('modalDeviceName').textContent = device.display_name || device.name;
+            document.getElementById('modalDeviceCode').textContent = device.code || 'N/A';
+            document.getElementById('modalDeviceLocation').textContent = device.location || 'N/A';
+            document.getElementById('modalDeviceType').textContent = device.type || 'N/A';
+            document.getElementById('modalDeviceIP').textContent = device.public_ip || 'N/A';
+            document.getElementById('modalDeviceASN').textContent = device.asn ? `${device.asn} (${device.asn_name || 'Unknown'})` : 'N/A';
+            document.getElementById('modalDeviceLatency').textContent = device.latency ? `${device.latency}ms` : 'N/A';
+            
+            // Show modal
+            document.getElementById('deviceModal').style.display = 'block';
+            
+            // Load chart data
+            loadChartData();
+        }
+
+        function closeDeviceModal() {
+            document.getElementById('deviceModal').style.display = 'none';
+            currentDevice = null;
+        }
+
+        function changeTimeframe(timeframe) {
+            currentTimeframe = timeframe;
+            
+            // Update button states
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload chart
+            loadChartData();
+        }
+
+        function loadChartData() {
+            if (!currentDevice) return;
+            
+            // For now, show a placeholder message
+            const chartContainer = document.querySelector('.chart-container');
+            chartContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <h3>📊 Latency History Chart</h3>
+                    <p>Timeframe: ${currentTimeframe}</p>
+                    <p>Device: ${currentDevice.display_name}</p>
+                    <p>This feature will show a detailed latency history chart with ${currentTimeframe} of data.</p>
+                    <p>Chart implementation coming soon...</p>
+                </div>
+            `;
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('deviceModal');
+            if (event.target === modal) {
+                closeDeviceModal();
+            }
+        });
 
         // Update dashboard
         function updateDashboard() {
@@ -1470,17 +1711,10 @@
             // Filter devices
             let visibleCount = 0;
             deviceCards.forEach(card => {
-                const deviceName = (card.querySelector('.device-name')?.textContent || '').toLowerCase();
-                const deviceLocation = (card.querySelector('.device-location')?.textContent || '').toLowerCase();
-                const deviceType = (card.querySelector('.device-type')?.textContent || '').toLowerCase();
-                const deviceIp = (card.querySelector('.device-ip')?.textContent || '').toLowerCase();
-                const deviceAsn = (card.querySelector('.device-asn')?.textContent || '').toLowerCase();
+                // Search across all text content in the card
+                const cardText = card.textContent.toLowerCase();
                 
-                const matches = deviceName.includes(searchTerm) ||
-                              deviceLocation.includes(searchTerm) ||
-                              deviceType.includes(searchTerm) ||
-                              deviceIp.includes(searchTerm) ||
-                              deviceAsn.includes(searchTerm);
+                const matches = cardText.includes(searchTerm);
                 
                 if (matches) {
                     card.style.display = 'grid';
@@ -1653,3 +1887,4 @@
     </script>
 </body>
 </html>
+
