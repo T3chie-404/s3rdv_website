@@ -821,7 +821,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.16</p>
+                        <p>DZ Device Monitor v1.0.18</p>
     </footer>
 
     <script>
@@ -1343,7 +1343,7 @@
                    target="_blank">
                     RIPEstat Analysis
                 </a>
-                <a href="${hasAsn ? `https://radar.cloudflare.com/traffic/${asn.toLowerCase()}` : '#'}" 
+                <a href="${hasAsn ? `https://radar.cloudflare.com/traffic/as${asn.replace('AS', '')}` : '#'}" 
                    class="tool-item ${!hasAsn ? 'disabled' : ''}" 
                    target="_blank">
                     Cloudflare Radar
