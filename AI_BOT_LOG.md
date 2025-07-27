@@ -297,6 +297,36 @@ localhost:3000 (DZ Device Monitor)
 **Deployment Status**: 
 - **Complete**: Dashboard fully functional with HTTPS
 - **Live**: Accessible at s3rdv.com/dzd_monitor
+
+---
+
+## 2025-07-26 - Enhanced Tooltips and ASN Names
+
+### **Changes Made:**
+- **ASN Name Display**: Added ASN organization names below ASN numbers
+- **Status Tooltips**: Added hover tooltips for online/offline status indicators
+- **Last Measurement Tooltips**: Added hover tooltips for "Last" latency measurements
+- **Deviation Tooltips**: Added hover tooltips showing actual deviation amounts
+- **Deviation Display**: Updated to show deviation amount in the symbol (e.g., "🔴↗️ 2.3ms")
+- **Last Measurement Colors**: Implemented 2ms threshold for "Last" measurement colors
+- **Version Update**: Incremented to v1.0.11
+
+### **Technical Details:**
+- **ASN Names**: Uses RIPEstat AS overview API to fetch organization names
+- **Tooltip Thresholds**: 
+  - Status: Green for reachable, Red for unreachable
+  - Last: Green (≤2ms), Yellow (2-5ms), Red (>5ms)
+  - Deviation: Shows actual deviation amount and direction
+- **Color Logic**: New `getLastMeasurementColor()` function for "Last" measurements
+- **Deviation Display**: Enhanced `getDeviationSymbol()` to include deviation amounts
+
+### **Purpose:**
+- Provide more detailed information on hover/click
+- Show ASN organization names for better network identification
+- Display actual deviation amounts for better monitoring
+- Improve user understanding of latency thresholds
+
+---
 - **Security**: HTTPS encryption for all API communications
 - **Performance**: Real-time updates working smoothly
 
@@ -500,3 +530,33 @@ function getLatencyColor(latency) {
 ---
 
 *This log documents the complete evolution of the DZ Device Monitor dashboard from basic integration to a beautiful, feature-rich monitoring interface with historical data tracking and enhanced device information.* 
+
+---
+
+## 2025-07-26 - Enhanced Tooltips and ASN Names
+
+### **Changes Made:**
+- **ASN Name Display**: Added ASN organization names below ASN numbers
+- **Status Tooltips**: Added hover tooltips for online/offline status indicators
+- **Last Measurement Tooltips**: Added hover tooltips for "Last" latency measurements
+- **Deviation Tooltips**: Added hover tooltips showing actual deviation amounts
+- **Deviation Display**: Updated to show deviation amount in the symbol (e.g., "🔴↗️ 2.3ms")
+- **Last Measurement Colors**: Implemented 2ms threshold for "Last" measurement colors
+- **Version Update**: Incremented to v1.0.11
+
+### **Technical Details:**
+- **ASN Names**: Uses RIPEstat AS overview API to fetch organization names
+- **Tooltip Thresholds**: 
+  - Status: Green for reachable, Red for unreachable
+  - Last: Green (≤2ms), Yellow (2-5ms), Red (>5ms)
+  - Deviation: Shows actual deviation amount and direction
+- **Color Logic**: New `getLastMeasurementColor()` function for "Last" measurements
+- **Deviation Display**: Enhanced `getDeviationSymbol()` to include deviation amounts
+
+### **Purpose:**
+- Provide more detailed information on hover/click
+- Show ASN organization names for better network identification
+- Display actual deviation amounts for better monitoring
+- Improve user understanding of latency thresholds
+
+--- 

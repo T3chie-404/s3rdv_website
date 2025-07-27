@@ -821,7 +821,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.10</p>
+                        <p>DZ Device Monitor v1.0.11</p>
     </footer>
 
     <script>
@@ -872,6 +872,27 @@
             return 'var(--accent-danger)';
         }
 
+        // Get "Last" measurement color based on deviation from previous
+        function getLastMeasurementColor(device) {
+            if (!device.latency || device.latency === null) return 'var(--text-muted)';
+            
+            // Check if we have historical data to compare against
+            if (device.historical_stats && device.historical_stats.avg) {
+                const deviation = Math.abs(device.latency - device.historical_stats.avg);
+                
+                if (deviation <= 2) {
+                    return 'var(--accent-success)'; // Green: within 2ms
+                } else if (deviation <= 5) {
+                    return 'var(--accent-warning)'; // Yellow: 2-5ms deviation
+                } else {
+                    return 'var(--accent-danger)'; // Red: >5ms deviation
+                }
+            }
+            
+            // Fallback to regular latency color if no historical data
+            return getLatencyColor(device.latency);
+        }
+
         // Get trend indicator
         function getTrendIndicator(trend) {
             if (!trend || trend === 0) return '<span class="trend-neutral">→</span>';
@@ -885,25 +906,46 @@
                 return '❌ Offline';
             }
             
-            // Check for significant deviation (over 2ms difference)
+            // Check for significant deviation (over 0.1ms difference)
             if (device.historical_stats && device.historical_stats.trend !== 0) {
                 const trend = device.historical_stats.trend;
                 const currentLatency = device.latency || 0;
                 const avgLatency = device.historical_stats.avg || 0;
+                const deviation = Math.abs(currentLatency - avgLatency);
                 
                 // Only show deviation if difference is over 0.1ms
-                if (Math.abs(currentLatency - avgLatency) > 0.1) {
+                if (deviation > 0.1) {
                     if (currentLatency > avgLatency) {
                         // Higher latency = red arrow up
-                        return '🔴↗️';
+                        return `🔴↗️ ${deviation.toFixed(1)}ms`;
                     } else {
                         // Lower latency = green arrow down
-                        return '🟢↘️';
+                        return `🟢↘️ ${deviation.toFixed(1)}ms`;
                     }
                 }
             }
             
             return '✅ Stable';
+        }
+
+        // Get deviation tooltip text
+        function getDeviationTooltip(device) {
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                return 'Device is unreachable or offline';
+            }
+            
+            if (device.historical_stats && device.historical_stats.trend !== 0) {
+                const currentLatency = device.latency || 0;
+                const avgLatency = device.historical_stats.avg || 0;
+                const deviation = Math.abs(currentLatency - avgLatency);
+                
+                if (deviation > 0.1) {
+                    const direction = currentLatency > avgLatency ? 'higher' : 'lower';
+                    return `Deviation: ${deviation.toFixed(1)}ms ${direction} than average (${avgLatency.toFixed(1)}ms)`;
+                }
+            }
+            
+            return 'Latency is stable (within 0.1ms of average)';
         }
 
         // Get status class based on reachability
@@ -1042,6 +1084,7 @@
         // Create device card - Completely redone with Tools first
         function createDeviceCard(device) {
             const latencyColor = getLatencyColor(device.latency);
+            const lastMeasurementColor = getLastMeasurementColor(device);
             const deviationStatus = getDeviationStatus(device.latency, device.historical_stats);
             const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
             
@@ -1077,11 +1120,14 @@
                     <div class="device-info">
                         <div class="info-label">ASN</div>
                         <div class="info-value">${device.asn ? `AS${device.asn}` : 'Unknown'}</div>
+                        ${device.asn_name ? `<div class="info-value" style="font-size: 0.7rem; color: var(--text-muted);">${device.asn_name}</div>` : ''}
                     </div>
                     
                     <!-- STATUS -->
                     <div class="device-status ${statusClass}">
-                        ${device.latency_status || 'Unknown'}
+                        <span title="🟢 Green: Device is reachable and responding&#10;🔴 Red: Device is unreachable or offline&#10;Threshold: Device must respond within 30 seconds">
+                            ${device.latency_status || 'Unknown'}
+                        </span>
                     </div>
                     
                     <!-- LATENCY GRID (2x2) -->
@@ -1100,7 +1146,8 @@
                         </div>
                         <div class="latency-last">
                             <div class="info-label">Last</div>
-                            <div class="info-value" style="color: ${latencyColor}">
+                            <div class="info-value" style="color: ${lastMeasurementColor}" 
+                                 title="🟢 Green: Within 2ms of previous measurement&#10;🟡 Yellow: 2-5ms deviation from previous&#10;🔴 Red: >5ms deviation from previous">
                                 ${device.latency !== null ? device.latency : '-'}ms
                             </div>
                         </div>
@@ -1115,7 +1162,8 @@
                     <!-- DEVIATION -->
                     <div class="deviation-symbol">
                         <div class="info-label">Deviation</div>
-                        <div class="deviation-icon" style="font-size: 1rem; text-align: center;">
+                        <div class="deviation-icon" style="font-size: 1rem; text-align: center;" 
+                             title="${getDeviationTooltip(device)}">
                             ${getDeviationSymbol(device)}
                         </div>
                     </div>
