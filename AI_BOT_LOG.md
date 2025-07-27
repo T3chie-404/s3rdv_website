@@ -980,3 +980,35 @@ localhost:3000 (DZ Device Monitor)
 - Make device info more compact for better layout
 
 --- 
+
+## 2025-07-27 - Fix Last Measurement Color Real-time Updates v1.0.42
+
+### **Changes Made:**
+- **Real-time Color Update Fix**: Fixed `updateDeviceCard()` function to use correct color function
+- **Color Function Bug**: Was using `getLatencyColor()` instead of `getLastMeasurementColor()`
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Updated `updateDeviceCard()` to use `getLastMeasurementColor(newData)` instead of `getLatencyColor(newData.latency)`
+  - Now Last measurement colors update properly in real-time
+- **Version Update**: Incremented to v1.0.42
+
+### **Technical Details:**
+- **Bug**: `updateDeviceCard()` was calling `getLatencyColor(newData.latency)` for Last measurement color
+- **Fix**: Changed to `getLastMeasurementColor(newData)` which compares against average
+- **Result**: Last measurement colors now update correctly every 30 seconds
+
+### **Why This Happened:**
+- **Tooltip**: Uses `getLastMeasurementColor()` correctly (shows green for ≤2ms)
+- **Color Update**: Was using wrong function `getLatencyColor()` (shows yellow)
+- **Mismatch**: Tooltip said "green" but color was actually yellow/orange
+
+### **Benefits:**
+- **Consistent Colors**: Tooltip and actual color now match
+- **Real-time Updates**: Colors update properly every 30 seconds
+- **Accurate Feedback**: Users see correct color based on deviation from average
+
+### **Purpose:**
+- Fix the mismatch between tooltip text and actual color
+- Ensure Last measurement colors update in real-time
+- Provide consistent visual feedback for latency deviations
+
+--- 

@@ -1205,7 +1205,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.41</p>
+                        <p>DZ Device Monitor v1.0.42</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1480,7 +1480,7 @@
             
             if (lastElement) {
                 lastElement.textContent = `${newData.latency !== null ? newData.latency : '-'} ms`;
-                lastElement.style.color = getLatencyColor(newData.latency);
+                lastElement.style.color = getLastMeasurementColor(newData);
             }
             
             // Remove updating class and add updated class
