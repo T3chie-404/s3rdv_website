@@ -726,7 +726,7 @@
             border-radius: 16px;
             width: 90%;
             max-width: 1000px;
-            max-height: calc(90vh + 50px);
+            max-height: calc(90vh + 150px);
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-lg);
@@ -873,14 +873,19 @@
             transform: rotate(180deg);
         }
 
-        .collapsible-content {
+                .collapsible-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
         }
-
+        
         .collapsible-content.expanded {
             max-height: 500px;
+        }
+        
+        .collapsible-header {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .tools-dropdown {
@@ -1089,7 +1094,7 @@
         <!-- Monitoring Stats -->
         <div class="devices-container fade-in">
             <div class="collapsible-header" onclick="toggleMonitoringStats()">
-                <h2 class="devices-title">
+                <h2 class="devices-title" style="margin: 0; font-size: 1.3rem;">
                     📊 Monitoring Statistics
                 </h2>
                 <span class="collapsible-icon" id="monitoringStatsIcon">▼</span>
@@ -1118,20 +1123,20 @@
 
         <!-- API Documentation Link -->
         <div class="devices-container fade-in">
-            <div style="text-align: center; padding: 2rem;">
-                <h2 class="devices-title">API Documentation</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
+            <div style="text-align: center; padding: 1rem;">
+                <h2 class="devices-title" style="margin-bottom: 0.5rem;">API Documentation</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 1rem;">
                     Access the complete API documentation with examples, data structures, and integration guides.
                 </p>
                 <a href="https://s3rdv.com/docs" target="_blank" style="
                     display: inline-block;
                     background: var(--gradient-primary);
                     color: white;
-                    padding: 1rem 2rem;
+                    padding: 0.75rem 1.5rem;
                     border-radius: 12px;
                     text-decoration: none;
                     font-weight: 600;
-                    font-size: 1.1rem;
+                    font-size: 1rem;
                     transition: all 0.3s ease;
                     box-shadow: var(--shadow-md);
                 " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
@@ -1200,7 +1205,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.39</p>
+                        <p>DZ Device Monitor v1.0.40</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 

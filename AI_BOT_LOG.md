@@ -903,3 +903,40 @@ localhost:3000 (DZ Device Monitor)
 - Simplify monitoring statistics for better clarity
 
 --- 
+
+## 2025-07-27 - Fix Total Observations Calculation and Improve UI v1.0.40
+
+### **Changes Made:**
+- **Fixed Total Observations**: Now correctly calculates sum of all individual pings across all devices
+- **Modal Height Increase**: Increased modal height by 150px to show Chart Statistics without scrolling
+- **Compact UI**: Made API Documentation and Monitoring Statistics sections more compact
+- **Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+  - Updated `getMonitoringStats()` to calculate totalObservations from actual historical data
+  - Now sums all device history lengths instead of relying on persistent counter
+  - Should show ~7800 total observations (9 devices × 860+ observations each)
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Increased modal max-height from `calc(90vh + 50px)` to `calc(90vh + 150px)`
+  - Reduced API Documentation section padding and font sizes
+  - Made Monitoring Statistics header more compact with smaller font
+  - Added compact styling for collapsible headers
+- **Version Update**: Incremented to v1.0.40
+
+### **Technical Details:**
+- **Total Observations Calculation**: `Array.from(this.historicalData.values()).reduce((sum, history) => sum + history.length, 0)`
+- **Modal Height**: Increased by 100px to accommodate Chart Statistics section
+- **Compact Sections**: Reduced padding and font sizes for better space utilization
+- **Better Space Usage**: More room for Network Devices section before scrolling
+
+### **Benefits:**
+- **Accurate Metrics**: Total observations now properly reflects all device pings
+- **Better UX**: Modal shows Chart Statistics without scrolling
+- **More Content Visible**: Less scrolling needed to see all devices
+- **Improved Layout**: Better space utilization for main content
+
+### **Purpose:**
+- Fix total observations to show actual sum of all device pings (~7800)
+- Improve modal usability by showing Chart Statistics without scrolling
+- Make UI more compact to fit more content on screen
+- Optimize space usage for better user experience
+
+--- 
