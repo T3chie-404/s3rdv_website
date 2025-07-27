@@ -232,6 +232,9 @@
             max-height: 800px;
             overflow-y: auto;
             padding-right: 1rem;
+            /* Add horizontal scroll for wide table */
+            overflow-x: auto;
+            min-width: 100%;
         }
 
         .devices-grid::-webkit-scrollbar {
@@ -252,7 +255,7 @@
             background: var(--accent-secondary);
         }
 
-        /* Device card - Wide format */
+        /* Device card - Completely redone wide format */
         .device-card {
             background: var(--bg-secondary);
             border-radius: 12px;
@@ -262,9 +265,11 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px 120px;
+            /* Much wider columns, Tools first to test */
+            grid-template-columns: 150px 200px 150px 120px 150px 120px 120px 120px 120px 120px 120px 120px;
             gap: 1rem;
             align-items: center;
+            min-width: 1600px; /* Force minimum width */
         }
 
         .device-card::before {
@@ -769,7 +774,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.1</p>
+                        <p>DZ Device Monitor v1.0.2</p>
     </footer>
 
     <script>
@@ -976,7 +981,7 @@
             `;
         }
 
-        // Create device card in wide format
+        // Create device card - Completely redone with Tools first
         function createDeviceCard(device) {
             const latencyColor = getLatencyColor(device.latency);
             const deviationStatus = getDeviationStatus(device.latency, device.historical_stats);
@@ -984,75 +989,84 @@
             
             const historicalStats = device.historical_stats;
             
-            // No debugging to prevent infinite loops
-
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
+                    <!-- TOOLS COLUMN FIRST (TEST) -->
+                    <div class="device-tools" style="background: rgba(255, 0, 0, 0.1); border: 2px solid red;">
+                        <div class="info-label">TOOLS</div>
+                        <div class="tools-menu">
+                            <button class="tools-button" onclick="openToolsMenu('${device.pubkey}', '${device.public_ip}', '${device.asn || ''}')" style="background: red; color: white;">
+                                TOOLS
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- DEVICE INFO -->
                     <div class="device-info">
                         <div class="device-name">${formatDeviceName(device.display_name)}</div>
                         <div class="device-code">${device.code || device.pubkey.substring(0, 8)}</div>
                     </div>
                     
+                    <!-- LOCATION -->
                     <div class="device-info">
                         <div class="info-label">Location</div>
                         <div class="info-value">${device.location || 'Unknown'}</div>
                     </div>
                     
+                    <!-- TYPE -->
                     <div class="device-info">
                         <div class="info-label">Type</div>
                         <div class="info-value">${device.type || 'Unknown'}</div>
                     </div>
                     
+                    <!-- IP ADDRESS -->
                     <div class="device-info">
                         <div class="info-label">IP Address</div>
                         <div class="info-value">${device.public_ip || 'Unknown'}</div>
                     </div>
                     
+                    <!-- STATUS -->
                     <div class="device-status ${statusClass}">
                         ${device.latency_status || 'Unknown'}
                     </div>
                     
-                    <div class="latency-min">
+                    <!-- MIN LATENCY -->
+                    <div class="latency-min" style="background: rgba(0, 255, 0, 0.1);">
                         <div class="info-label">Min</div>
                         <div class="info-value">
                             ${historicalStats && historicalStats.min ? historicalStats.min : '-'} ms
                         </div>
                     </div>
                     
-                    <div class="latency-max">
+                    <!-- MAX LATENCY -->
+                    <div class="latency-max" style="background: rgba(0, 0, 255, 0.1);">
                         <div class="info-label">Max</div>
                         <div class="info-value">
                             ${historicalStats && historicalStats.max ? historicalStats.max : '-'} ms
                         </div>
                     </div>
                     
-                    <div class="latency-avg">
+                    <!-- AVG LATENCY -->
+                    <div class="latency-avg" style="background: rgba(255, 255, 0, 0.1);">
                         <div class="info-label">Avg</div>
                         <div class="info-value">
                             ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'} ms
                         </div>
                     </div>
                     
-                    <div class="latency-last">
+                    <!-- LAST LATENCY -->
+                    <div class="latency-last" style="background: rgba(255, 0, 255, 0.1);">
                         <div class="info-label">Last</div>
                         <div class="info-value" style="color: ${latencyColor}">
                             ${device.latency !== null ? device.latency : '-'} ms
                         </div>
                     </div>
                     
-                    <div class="deviation-symbol">
+                    <!-- DEVIATION -->
+                    <div class="deviation-symbol" style="background: rgba(0, 255, 255, 0.1);">
                         <div class="info-label">Deviation</div>
                         <div class="deviation-icon" style="font-size: 1.2rem;">
                             ${getDeviationSymbol(device)}
-                        </div>
-                    </div>
-                    
-                    <div class="device-tools">
-                        <div class="info-label">Tools</div>
-                        <div class="tools-menu">
-                            <button class="tools-button" onclick="openToolsMenu('${device.pubkey}', '${device.public_ip}', '${device.asn || ''}')">
-                                Tools
-                            </button>
                         </div>
                     </div>
                 </div>
