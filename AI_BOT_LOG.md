@@ -560,3 +560,24 @@ function getLatencyColor(latency) {
 - Improve user understanding of latency thresholds
 
 --- 
+
+---
+
+## 2025-07-26 - Status Color Fix and Version Update
+
+### **Changes Made:**
+- **Status Color Fix**: Removed yellow status indicators - online devices now show green only
+- **Version Update**: Incremented to v1.0.12
+- **Status Logic**: Simplified to green (online) or red (offline) only
+
+### **Technical Details:**
+- **getStatusClass Function**: Removed deviation-based yellow status
+- **Status Display**: Online devices always show green, offline devices show red
+- **User Experience**: Clearer status indication without confusing yellow states
+
+### **Purpose:**
+- Fix confusing yellow status indicators
+- Provide clear green/red status indication
+- Improve user understanding of device status
+
+--- 
