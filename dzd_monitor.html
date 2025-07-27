@@ -731,6 +731,12 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-lg);
         }
+        
+        .modal-body {
+            padding: 2rem;
+            max-height: calc(90vh - 120px); /* Account for header */
+            overflow-y: auto;
+        }
 
         .modal-header {
             background: var(--bg-tertiary);
@@ -768,9 +774,7 @@
             color: var(--bg-primary);
         }
 
-        .modal-body {
-            padding: 2rem;
-        }
+
 
         .device-info {
             margin-bottom: 2rem;
@@ -829,7 +833,13 @@
             border-radius: 12px;
             padding: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 400px;
+            height: 700px;
+            position: relative;
+        }
+        
+        .chart-container canvas {
+            max-height: 100% !important;
+            width: 100% !important;
         }
 
         .tools-dropdown {
@@ -1156,7 +1166,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.33</p>
+                        <p>DZ Device Monitor v1.0.34</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1676,7 +1686,7 @@
         
         function createLatencyChart(chartData) {
             const chartContainer = document.querySelector('.chart-container');
-            chartContainer.innerHTML = '<canvas id="latencyChart"></canvas>';
+            chartContainer.innerHTML = '<canvas id="latencyChart" style="width: 100%; height: 100%;"></canvas>';
             
             const ctx = document.getElementById('latencyChart').getContext('2d');
             
@@ -1757,6 +1767,12 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 20,
+                            bottom: 20
+                        }
+                    },
                     plugins: {
                         title: {
                             display: true,

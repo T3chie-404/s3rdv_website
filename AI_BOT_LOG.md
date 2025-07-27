@@ -911,3 +911,35 @@ function getLatencyColor(latency) {
 - Provide adaptive scaling for different latency patterns
 
 --- 
+
+## 2025-07-27 - Fix Chart Container Height v1.0.34
+
+### **Changes Made:**
+- **Fixed Chart Container Height**: Set chart container to fixed 700px height
+- **Prevented Scroll Issues**: Eliminated dynamic height growth causing scroll problems
+- **Improved Canvas Fitting**: Added proper CSS for canvas to fit within container
+- **Modal Body Constraints**: Added max-height to modal body to prevent overflow
+- **Layout Padding**: Added chart layout padding for better visual spacing
+- **Version Update**: Incremented to v1.0.34
+
+### **Technical Details:**
+- **Chart Container**: Fixed height of 700px with relative positioning
+- **Canvas Styling**: Added `max-height: 100%` and `width: 100%` for proper fitting
+- **Modal Constraints**: Modal body max-height set to `calc(90vh - 120px)` to account for header
+- **Layout Padding**: Added 20px top/bottom padding to chart layout
+- **Responsive Design**: Chart maintains responsive behavior within fixed container
+
+### **Benefits:**
+- **No More Scroll Issues**: Chart container no longer grows dynamically
+- **Consistent Layout**: Fixed height provides predictable modal behavior
+- **Better UX**: Users can see full chart without unexpected scrolling
+- **Professional Appearance**: Charts have consistent, controlled dimensions
+- **Responsive**: Chart still adapts to different screen sizes within constraints
+
+### **Purpose:**
+- Fix chart container height to prevent scroll bar issues
+- Provide consistent chart dimensions across all devices
+- Improve user experience with predictable modal behavior
+- Maintain chart responsiveness while controlling container size
+
+--- 
