@@ -1208,7 +1208,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.37</p>
+                        <p>DZ Device Monitor v1.0.38</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1677,6 +1677,9 @@
             document.getElementById('modalDeviceASN').textContent = device.asn ? `${device.asn} (${device.asn_name || 'Unknown'})` : 'N/A';
             document.getElementById('modalDeviceLatency').textContent = device.latency ? `${device.latency}ms` : 'N/A';
             
+            // Load earliest observed date
+            loadEarliestObserved(device.pubkey);
+            
             // Show modal
             document.getElementById('deviceModal').style.display = 'block';
             
@@ -1687,6 +1690,31 @@
         function closeDeviceModal() {
             document.getElementById('deviceModal').style.display = 'none';
             currentDevice = null;
+        }
+
+        async function loadEarliestObserved(deviceId) {
+            try {
+                // Fetch all history data for the device
+                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all`);
+                const data = await response.json();
+                
+                if (data.success && data.data.history && data.data.history.length > 0) {
+                    // Find the earliest timestamp
+                    const earliest = data.data.history.reduce((earliest, observation) => {
+                        const timestamp = new Date(observation.timestamp);
+                        return timestamp < earliest ? timestamp : earliest;
+                    }, new Date(data.data.history[0].timestamp));
+                    
+                    // Format the date
+                    const formattedDate = earliest.toLocaleDateString() + ' ' + earliest.toLocaleTimeString();
+                    document.getElementById('modalDeviceEarliest').textContent = formattedDate;
+                } else {
+                    document.getElementById('modalDeviceEarliest').textContent = 'No data available';
+                }
+            } catch (error) {
+                console.error('Error loading earliest observed date:', error);
+                document.getElementById('modalDeviceEarliest').textContent = 'Error loading data';
+            }
         }
 
         function changeTimeframe(timeframe) {

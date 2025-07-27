@@ -830,3 +830,38 @@ localhost:3000 (DZ Device Monitor)
 - Improve dashboard with more meaningful metrics
 
 --- 
+
+## 2025-07-27 - Add Earliest Observed Date for Each Device v1.0.38
+
+### **Changes Made:**
+- **Device Details Enhancement**: Added "Earliest Observed" field to device detail modal
+- **Historical Data Integration**: Fetches complete device history to determine earliest observation
+- **Date Formatting**: Displays earliest observed date and time in user-friendly format
+- **Error Handling**: Graceful handling when no historical data is available
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Added "Earliest Observed" field to device info section in modal
+  - Created `loadEarliestObserved()` function to fetch and calculate earliest date
+  - Updated `showDeviceModal()` to call earliest observed loading
+  - Added proper error handling and fallback messages
+- **Version Update**: Incremented to v1.0.38
+
+### **Technical Details:**
+- **API Integration**: Uses existing `/api/devices/{deviceId}/history?timeframe=all` endpoint
+- **Date Calculation**: Finds earliest timestamp from complete device history
+- **Formatting**: Displays as "MM/DD/YYYY HH:MM:SS" format
+- **Performance**: Loads asynchronously alongside chart data
+- **Fallback**: Shows "No data available" or "Error loading data" when appropriate
+
+### **Benefits:**
+- **Historical Context**: Shows when monitoring began for each specific device
+- **Device Insights**: Helps understand device monitoring history
+- **Data Validation**: Confirms when data collection started for each device
+- **User Experience**: Provides more detailed device information
+
+### **Purpose:**
+- Add historical context to device details
+- Show when monitoring began for each specific device
+- Provide more comprehensive device information
+- Help users understand device monitoring history
+
+--- 
