@@ -821,7 +821,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.14</p>
+                        <p>DZ Device Monitor v1.0.15</p>
     </footer>
 
     <script>
@@ -1116,7 +1116,7 @@
                     <div class="device-info">
                         <div class="info-label">ASN</div>
                         <div class="info-value">${device.asn ? `AS${device.asn}` : 'Unknown'}</div>
-                        ${device.asn_name ? `<div class="info-value" style="font-size: 0.7rem; color: var(--text-muted);">${device.asn_name}</div>` : ''}
+                        ${device.asn_name ? `<div class="info-value" style="font-size: 0.7rem; color: var(--text-muted); word-wrap: break-word; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${device.asn_name}">${device.asn_name.length > 15 ? device.asn_name.substring(0, 15) + '...' : device.asn_name}</div>` : ''}
                     </div>
                     
                     <!-- STATUS -->
@@ -1343,8 +1343,8 @@
                    target="_blank">
                     RIPEstat Analysis
                 </a>
-                <a href="${hasIp ? `https://radar.cloudflare.com/ip/${ipAddress}` : '#'}" 
-                   class="tool-item ${!hasIp ? 'disabled' : ''}" 
+                <a href="${hasAsn ? `https://radar.cloudflare.com/traffic/${asn.toLowerCase()}` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
                    target="_blank">
                     Cloudflare Radar
                 </a>
