@@ -780,4 +780,45 @@ function getLatencyColor(latency) {
 - **Easy Access**: Prominent link from dashboard to documentation
 - **Scalable**: Easy to add more documentation sections in the future
 
+---
+
+## 2025-07-27 - Major Dashboard Enhancements v1.0.30
+
+### **Changes Made:**
+- **New Deviation Calculation**: Changed to show greatest observed deviation from average over last 600 measurements
+- **Updated LAST Field Color Logic**: 
+  - Green: ≤2ms higher than average
+  - Orange: 2-5ms higher than average  
+  - Red: >5ms higher than average
+- **Expandable Device Cards**: Added 📊 button to expand device details with modal
+- **Historical Data Extension**: Increased from 3000 to 120,000 observations (120 days)
+- **Enhanced Search**: Fixed to be case-insensitive and search across all card content
+- **API Documentation Cleanup**: Removed Slack test endpoints until basic auth is implemented
+- **Footer Enhancement**: Added S3RDV LLC copyright notice
+
+### **Technical Details:**
+- **Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+  - `maxObservations`: 3000 → 120,000 (120 days)
+  - `calculateDeviceStats()`: Added `maxDeviation` calculation over last 600 measurements
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - `getLastMeasurementColor()`: Updated thresholds (2ms/5ms)
+  - `getDeviationSymbol()`: Shows greatest deviation with 📊 icon
+  - `filterDevices()`: Simplified to search all card text content
+  - Added modal system with device details and chart placeholder
+- **Memory Impact**: ~120 MB for 20 devices × 120,000 observations
+- **Disk Impact**: ~60 MB for historical data file
+
+### **New Features:**
+- **Device Expansion Modal**: Click 📊 button to view detailed device information
+- **Timeframe Selection**: 25h, 7d, 30d, All History buttons (chart placeholder)
+- **Enhanced Tooltips**: Updated to reflect new deviation calculation and 120-day timeframe
+- **Improved Search**: Now searches device name, location, type, IP, ASN, and all other fields
+
+### **Benefits:**
+- **Better Monitoring**: More accurate deviation detection based on historical patterns
+- **Extended History**: 120 days vs 25 hours of historical data
+- **User Experience**: Expandable cards provide detailed device information
+- **Search Functionality**: More comprehensive and user-friendly search
+- **Professional Branding**: S3RDV LLC copyright adds professional touch
+
 --- 
