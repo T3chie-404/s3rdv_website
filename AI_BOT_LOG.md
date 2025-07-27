@@ -865,3 +865,41 @@ localhost:3000 (DZ Device Monitor)
 - Help users understand device monitoring history
 
 --- 
+
+## 2025-07-27 - Simplify Monitoring Statistics and Improve Modal v1.0.39
+
+### **Changes Made:**
+- **Simplified Statistics**: Removed redundant "Data Points" and "Alerts Sent" tiles
+- **Total Observations**: Now represents sum of all individual pings across all devices
+- **Modal Improvements**: Increased modal height by 50px to reduce scrolling
+- **Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+  - Removed `totalDataPoints` from persistent stats
+  - Removed `failedPercentage` calculation
+  - Updated `getMonitoringStats()` to only return `totalObservations` and `alertsSent`
+  - Removed `totalDataPoints` increment from `checkDevices()`
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Removed "Data Points" and "Alerts Sent" stat cards
+  - Updated `updateDashboard()` to only update remaining stats
+  - Increased modal max-height from `90vh` to `calc(90vh + 50px)`
+- **API Documentation**: Updated to reflect simplified data structure
+- **Version Update**: Incremented to v1.0.39
+
+### **Technical Details:**
+- **Total Observations**: Now correctly represents sum of all individual ping measurements across all devices
+- **Removed Redundancy**: Eliminated duplicate "Data Points" metric that was same as observations
+- **Modal Height**: Increased from 90vh to 90vh + 50px for better user experience
+- **Cleaner Interface**: Reduced stat cards from 4 to 2 for better focus
+
+### **Benefits:**
+- **Accurate Metrics**: Total observations now properly reflects all individual pings
+- **Cleaner Interface**: Fewer redundant statistics for better focus
+- **Better UX**: Taller modal reduces need for scrolling
+- **Simplified Logic**: Removed unnecessary data point tracking
+
+### **Purpose:**
+- Fix total observations to show actual sum of all device pings
+- Remove redundant statistics for cleaner interface
+- Improve modal usability with increased height
+- Simplify monitoring statistics for better clarity
+
+--- 

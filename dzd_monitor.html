@@ -726,7 +726,7 @@
             border-radius: 16px;
             width: 90%;
             max-width: 1000px;
-            max-height: 90vh;
+            max-height: calc(90vh + 50px);
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-lg);
@@ -1109,16 +1109,8 @@
                         <div class="stat-label">Total Observations</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="totalDataPoints">-</div>
-                        <div class="stat-label">Data Points</div>
-                    </div>
-                    <div class="stat-card">
                         <div class="stat-value" id="firstData">-</div>
                         <div class="stat-label">First Data</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="alertsSent">-</div>
-                        <div class="stat-label">Alerts Sent</div>
                     </div>
                 </div>
             </div>
@@ -1208,7 +1200,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.38</p>
+                        <p>DZ Device Monitor v1.0.39</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1992,13 +1984,10 @@
             
             // Update new persistent stats
             document.getElementById('totalObservations').textContent = stats.totalObservations || 0;
-            document.getElementById('totalDataPoints').textContent = stats.totalDataPoints || 0;
             
             // Format first data timestamp
             const firstData = stats.firstObservation ? new Date(stats.firstObservation).toLocaleDateString() : '-';
             document.getElementById('firstData').textContent = firstData;
-            
-            document.getElementById('alertsSent').textContent = stats.alertsSent || 0;
 
             // Update device count
             document.getElementById('deviceCount').textContent = `${devices ? devices.length : 0} devices`;
