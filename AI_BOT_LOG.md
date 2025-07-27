@@ -943,3 +943,46 @@ function getLatencyColor(latency) {
 - Maintain chart responsiveness while controlling container size
 
 --- 
+
+## 2025-07-27 - Add Collapsible Monitoring Stats Section v1.0.35
+
+### **Changes Made:**
+- **Moved Top Stats Cards**: Relocated all top monitoring cards into the "Monitoring Statistics" section
+- **Collapsible Design**: Made the monitoring stats section collapsible with smooth animations
+- **Default Closed State**: Section starts collapsed by default to reduce visual clutter
+- **Enhanced Layout**: Combined all 8 monitoring statistics in one organized section
+- **Interactive Header**: Clickable header with expand/collapse icon
+- **Smooth Animations**: Added CSS transitions for expand/collapse effects
+- **Version Update**: Incremented to v1.0.35
+
+### **Technical Details:**
+- **Collapsible CSS**: Added `.collapsible-header`, `.collapsible-content`, `.collapsible-icon` styles
+- **JavaScript Function**: `toggleMonitoringStats()` for expand/collapse functionality
+- **Animation**: Smooth `max-height` transitions with 0.3s ease
+- **Icon Rotation**: Arrow icon rotates 180° when expanded
+- **Hover Effects**: Header changes color on hover for better UX
+
+### **Statistics Included:**
+- **Total Devices**: Number of monitored devices
+- **Online Devices**: Currently online devices
+- **Uptime**: Service uptime in days/hours/minutes
+- **Success Rate**: Monitoring success percentage
+- **Total Checks**: Total monitoring checks performed
+- **Successful**: Successful monitoring checks
+- **Failed**: Failed monitoring checks
+- **Alerts Sent**: Number of alerts sent to Slack
+
+### **Benefits:**
+- **Cleaner Interface**: Reduced visual clutter by hiding stats by default
+- **Better Organization**: All monitoring stats grouped in one logical section
+- **Space Efficient**: More room for device grid and charts
+- **User Control**: Users can expand stats when needed
+- **Professional Appearance**: Clean, organized layout
+
+### **Purpose:**
+- Improve dashboard layout by reducing visual clutter
+- Provide better organization of monitoring statistics
+- Give users control over what information is visible
+- Create more space for the main device monitoring interface
+
+--- 

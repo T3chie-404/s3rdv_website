@@ -842,6 +842,47 @@
             width: 100% !important;
         }
 
+        /* Collapsible section styles */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            color: var(--accent-primary);
+        }
+
+        .collapsible-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .collapsible-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 500px;
+        }
+
         .tools-dropdown {
             position: fixed;
             background: var(--bg-secondary);
@@ -1009,25 +1050,7 @@
             </div>
         </div>
         
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card fade-in">
-                <div class="stat-value" id="totalDevices">-</div>
-                <div class="stat-label">Total Devices</div>
-            </div>
-            <div class="stat-card fade-in">
-                <div class="stat-value" id="onlineDevices">-</div>
-                <div class="stat-label">Online Devices</div>
-            </div>
-            <div class="stat-card fade-in">
-                <div class="stat-value" id="uptime">-</div>
-                <div class="stat-label">Uptime</div>
-            </div>
-            <div class="stat-card fade-in">
-                <div class="stat-value" id="successRate">-</div>
-                <div class="stat-label">Success Rate</div>
-            </div>
-        </div>
+
 
         <!-- Devices Container -->
         <div class="devices-container fade-in">
@@ -1065,23 +1088,46 @@
 
         <!-- Monitoring Stats -->
         <div class="devices-container fade-in">
-            <h2 class="devices-title">Monitoring Statistics</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalChecks">-</div>
-                    <div class="stat-label">Total Checks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="successfulChecks">-</div>
-                    <div class="stat-label">Successful</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="failedChecks">-</div>
-                    <div class="stat-label">Failed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="alertsSent">-</div>
-                    <div class="stat-label">Alerts Sent</div>
+            <div class="collapsible-header" onclick="toggleMonitoringStats()">
+                <h2 class="devices-title">
+                    📊 Monitoring Statistics
+                </h2>
+                <span class="collapsible-icon" id="monitoringStatsIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="monitoringStatsContent">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDevices">-</div>
+                        <div class="stat-label">Total Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="onlineDevices">-</div>
+                        <div class="stat-label">Online Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="uptime">-</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successRate">-</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalChecks">-</div>
+                        <div class="stat-label">Total Checks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successfulChecks">-</div>
+                        <div class="stat-label">Successful</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="failedChecks">-</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="alertsSent">-</div>
+                        <div class="stat-label">Alerts Sent</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1166,7 +1212,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.34</p>
+                        <p>DZ Device Monitor v1.0.35</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1179,6 +1225,20 @@
         let stats = {};
         let health = {};
         let latencyChart = null;
+        
+        // Collapsible functionality
+        function toggleMonitoringStats() {
+            const content = document.getElementById('monitoringStatsContent');
+            const icon = document.getElementById('monitoringStatsIcon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
 
         // Format uptime
         function formatUptime(seconds) {
