@@ -940,3 +940,43 @@ localhost:3000 (DZ Device Monitor)
 - Optimize space usage for better user experience
 
 --- 
+
+## 2025-07-27 - Fix 24hr Deviation Calculation and Color Issues v1.0.41
+
+### **Changes Made:**
+- **24hr Deviation Calculation**: Updated backend to use 2880 observations (24 hours) instead of 600 (5 hours)
+- **Deviation Tooltip Fix**: Updated tooltip to show "24 hours" instead of "5 hours"
+- **Deviation Icon Change**: Changed from 📊 to 📈 to differentiate from chart icon
+- **Last Measurement Color Fix**: Removed blue color fallback, now only uses green/orange/red
+- **Modal Height Increase**: Increased modal height by 200px to accommodate Chart Statistics
+- **Device Info Compact**: Made device info section use grid layout for better space usage
+- **Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+  - Updated deviation calculation to use `latencies.slice(-2880)` for 24-hour data
+  - Fixed comment to reflect 24-hour timeframe
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Updated `getDeviationTooltip()` to show "24 hours" timeframe
+  - Changed deviation icon from 📊 to 📈
+  - Fixed `getLastMeasurementColor()` to only return green/orange/red
+  - Increased modal max-height to `calc(90vh + 200px)`
+  - Made device info section compact with grid layout
+- **Version Update**: Incremented to v1.0.41
+
+### **Technical Details:**
+- **24hr Deviation**: Now uses last 2880 observations (24 hours) instead of 600 (5 hours)
+- **Color Logic**: Last measurement only shows green (≤2ms), orange (2-5ms), or red (>5ms)
+- **Modal Space**: Increased height by 200px to show Chart Statistics without scrolling
+- **Compact Layout**: Device info now uses 2-column grid for better space utilization
+
+### **Benefits:**
+- **Accurate Deviation**: 24-hour deviation calculation matches the label
+- **Better UX**: No more blue colors in Last measurement
+- **More Space**: Modal can show Chart Statistics without scrolling
+- **Clear Icons**: Different icons for deviation vs chart functionality
+
+### **Purpose:**
+- Fix 24hr deviation calculation to actually use 24 hours of data
+- Remove blue color issue in Last measurement
+- Improve modal space usage for Chart Statistics
+- Make device info more compact for better layout
+
+--- 

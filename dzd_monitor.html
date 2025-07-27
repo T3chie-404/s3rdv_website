@@ -726,7 +726,7 @@
             border-radius: 16px;
             width: 90%;
             max-width: 1000px;
-            max-height: calc(90vh + 150px);
+            max-height: calc(90vh + 200px);
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-lg);
@@ -1155,7 +1155,7 @@
                 <button class="modal-close" onclick="closeDeviceModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="device-info">
+                <div class="device-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
                     <div class="info-row">
                         <span class="info-label">Device Code:</span>
                         <span id="modalDeviceCode">-</span>
@@ -1205,7 +1205,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.40</p>
+                        <p>DZ Device Monitor v1.0.41</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1289,8 +1289,8 @@
                 }
             }
             
-            // Fallback to regular latency color if no historical data
-            return getLatencyColor(device.latency);
+            // Fallback to green if no historical data
+            return 'var(--accent-success)';
         }
 
         // Get "Last" measurement tooltip
@@ -1355,12 +1355,12 @@
                 return '❌ Offline';
             }
             
-            // Show greatest observed deviation from average over last 600 measurements
+            // Show greatest observed deviation from average over last 2880 measurements
             if (device.historical_stats && device.historical_stats.maxDeviation !== undefined) {
                 const maxDeviation = device.historical_stats.maxDeviation;
                 
                 if (maxDeviation > 0.1) {
-                    return `📊 ${maxDeviation.toFixed(1)}ms`;
+                    return `📈 ${maxDeviation.toFixed(1)}ms`;
                 }
             }
             
@@ -1377,7 +1377,7 @@
                 const maxDeviation = device.historical_stats.maxDeviation;
                 
                 if (maxDeviation > 0.1) {
-                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 600 observations (5 hours)`;
+                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 2880 observations (24 hours)`;
                 }
             }
             
