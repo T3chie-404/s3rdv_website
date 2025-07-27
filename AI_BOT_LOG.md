@@ -986,3 +986,42 @@ function getLatencyColor(latency) {
 - Create more space for the main device monitoring interface
 
 --- 
+
+## 2025-07-27 - Update Monitoring Statistics to Persistent Metrics v1.0.36
+
+### **Changes Made:**
+- **Persistent Statistics**: Replaced uptime and runtime stats with persistent metrics that don't reset on restart
+- **New Metrics**: 
+  - `totalObservations`: Total observations ever recorded
+  - `totalDataPoints`: Total data points in database
+  - `failedPercentage`: Failed observations as percentage of total
+- **Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+  - Added `persistentStats` object with persistent metrics
+  - Updated `loadHistoricalData()` and `saveHistoricalData()` to handle persistent stats
+  - Modified `addHistoricalObservation()` to track new metrics
+  - Updated `getMonitoringStats()` to return new metrics
+- **Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+  - Replaced uptime, success rate, total checks, successful checks, failed checks with new metrics
+  - Updated `updateDashboard()` function to display new stats
+  - Updated API documentation to reflect new data structure
+- **Version Update**: Incremented to v1.0.36
+
+### **Technical Details:**
+- **Persistent Stats**: Stored in `historical_data.json` alongside historical data
+- **Failed Percentage**: Calculated as `(failedObservations / totalObservations) * 100`
+- **Data Persistence**: Stats survive service restarts and are loaded from disk
+- **Backward Compatibility**: Maintains existing API structure with new field names
+
+### **Benefits:**
+- **Persistent Data**: Statistics don't reset when service restarts
+- **Better Metrics**: More meaningful statistics for long-term monitoring
+- **Data Integrity**: Tracks actual observations vs runtime checks
+- **Historical Context**: Shows total data collected over time
+
+### **Purpose:**
+- Replace runtime statistics with persistent metrics
+- Provide better long-term monitoring insights
+- Track actual data collection vs service runtime
+- Improve dashboard with more meaningful statistics
+
+--- 

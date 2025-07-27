@@ -1105,24 +1105,16 @@
                         <div class="stat-label">Online Devices</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="uptime">-</div>
-                        <div class="stat-label">Uptime</div>
+                        <div class="stat-value" id="totalObservations">-</div>
+                        <div class="stat-label">Total Observations</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="successRate">-</div>
-                        <div class="stat-label">Success Rate</div>
+                        <div class="stat-value" id="totalDataPoints">-</div>
+                        <div class="stat-label">Data Points</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="totalChecks">-</div>
-                        <div class="stat-label">Total Checks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="successfulChecks">-</div>
-                        <div class="stat-label">Successful</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="failedChecks">-</div>
-                        <div class="stat-label">Failed</div>
+                        <div class="stat-value" id="failedPercentage">-</div>
+                        <div class="stat-label">Failed %</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="alertsSent">-</div>
@@ -1212,7 +1204,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.35</p>
+                        <p>DZ Device Monitor v1.0.36</p>
         <p>&copy; 2025 S3RDV LLC</p>
     </footer>
 
@@ -1965,16 +1957,11 @@
             document.getElementById('totalDevices').textContent = devices ? devices.length : 0;
             document.getElementById('onlineDevices').textContent = devices ? 
                 devices.filter(d => d.latency_status === 'online').length : 0;
-            document.getElementById('uptime').textContent = formatUptime(health.uptime || stats.uptime);
             
-            // Fix: Handle successRate as either string or number
-            const successRate = typeof stats.successRate === 'string' ? parseFloat(stats.successRate) : (stats.successRate || 100);
-            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
-
-            // Update monitoring stats
-            document.getElementById('totalChecks').textContent = stats.totalChecks || 0;
-            document.getElementById('successfulChecks').textContent = stats.successfulChecks || 0;
-            document.getElementById('failedChecks').textContent = stats.failedChecks || 0;
+            // Update new persistent stats
+            document.getElementById('totalObservations').textContent = stats.totalObservations || 0;
+            document.getElementById('totalDataPoints').textContent = stats.totalDataPoints || 0;
+            document.getElementById('failedPercentage').textContent = (stats.failedPercentage || 0) + '%';
             document.getElementById('alertsSent').textContent = stats.alertsSent || 0;
 
             // Update device count

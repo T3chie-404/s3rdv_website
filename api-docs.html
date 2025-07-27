@@ -557,16 +557,15 @@
                     <div class="response-example">{
   "success": true,
   "data": {
-    "uptime": 86400,
-    "totalChecks": 2880,
-    "successfulChecks": 2875,
-    "failedChecks": 5,
-    "successRate": "99.83",
+    "totalObservations": 120000,
+    "totalDataPoints": 120000,
+    "failedPercentage": "0.5",
     "alertsSent": 12,
     "deviceCount": 20,
     "lastCheck": "2025-07-26T16:58:24.123Z",
     "startTime": "2025-07-26T00:00:00.000Z",
-    "totalObservations": 60000
+    "firstObservation": "2025-07-26T00:00:00.000Z",
+    "lastObservation": "2025-07-26T16:58:24.123Z"
   },
   "timestamp": "2025-07-26T16:58:24.123Z"
 }</div>
@@ -603,16 +602,15 @@
 
             <h3>Monitoring Stats Object</h3>
             <div class="response-example">{
-  "uptime": number,             // Service uptime in seconds
-  "totalChecks": number,        // Total monitoring checks
-  "successfulChecks": number,   // Successful checks
-  "failedChecks": number,       // Failed checks
-  "successRate": "string",      // Success rate percentage
+  "totalObservations": number,  // Total observations ever recorded
+  "totalDataPoints": number,    // Total data points in database
+  "failedPercentage": "string", // Failed observations as percentage
   "alertsSent": number,         // Number of alerts sent
   "deviceCount": number,        // Number of devices
   "lastCheck": "string",        // Last check timestamp
   "startTime": "string",        // Service start timestamp
-  "totalObservations": number   // Total historical observations
+  "firstObservation": "string", // First observation timestamp
+  "lastObservation": "string"   // Last observation timestamp
 }</div>
         </div>
 
