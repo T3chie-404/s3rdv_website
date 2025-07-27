@@ -821,7 +821,7 @@
 
     <footer class="footer">
         <p>Last updated: <span id="lastUpdated">-</span></p>
-                        <p>DZ Device Monitor v1.0.12</p>
+                        <p>DZ Device Monitor v1.0.13</p>
     </footer>
 
     <script>
@@ -1348,8 +1348,8 @@
                    target="_blank">
                     Cloudflare Radar
                 </a>
-                <a href="${hasIp ? `https://ihr.iijlab.net/ihr/api/networks/${ipAddress}/` : '#'}" 
-                   class="tool-item ${!hasIp ? 'disabled' : ''}" 
+                <a href="${hasAsn ? `https://www.ihr.live/en/network/${asn}` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
                    target="_blank">
                     IHR Network Health
                 </a>
