@@ -1028,6 +1028,111 @@
                 transform: translateY(0);
             }
         }
+
+        /* Agent Status Styles */
+        .agent-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .agent-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .agent-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .agent-info {
+            flex: 1;
+        }
+
+        .agent-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .agent-location {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .agent-status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .agent-status-badge.online {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-success);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .agent-status-badge.offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .agent-status-badge.connecting {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .agent-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .agent-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .agent-stat .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .agent-stat .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -1116,6 +1221,61 @@
                     <div class="stat-card">
                         <div class="stat-value" id="firstData">-</div>
                         <div class="stat-label">First Data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Status -->
+        <div class="devices-container fade-in">
+            <div class="collapsible-header" onclick="toggleAgentStatus()">
+                <h2 class="devices-title" style="margin: 0; font-size: 1.3rem;">
+                    🤖 Agent Status
+                </h2>
+                <span class="collapsible-icon" id="agentStatusIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="agentStatusContent">
+                <div class="agent-status-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-icon">🖥️</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Main Monitor</div>
+                                <div class="agent-location">Central Server</div>
+                            </div>
+                            <div class="agent-status-badge online">Online</div>
+                        </div>
+                        <div class="agent-details">
+                            <div class="agent-stat">
+                                <span class="stat-label">Devices:</span>
+                                <span class="stat-value" id="mainMonitorDevices">-</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="stat-label">Last Update:</span>
+                                <span class="stat-value" id="mainMonitorLastUpdate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-icon">🇱🇹</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Lithuania-01</div>
+                                <div class="agent-location">Lithuania</div>
+                            </div>
+                            <div class="agent-status-badge" id="lithuaniaAgentStatus">Connecting...</div>
+                        </div>
+                        <div class="agent-details">
+                            <div class="agent-stat">
+                                <span class="stat-label">Devices:</span>
+                                <span class="stat-value" id="lithuaniaAgentDevices">-</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="stat-label">Last Update:</span>
+                                <span class="stat-value" id="lithuaniaAgentLastUpdate">-</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1230,6 +1390,55 @@
             } else {
                 content.classList.add('expanded');
                 icon.classList.add('expanded');
+            }
+        }
+
+        // Agent status toggle functionality
+        function toggleAgentStatus() {
+            const content = document.getElementById('agentStatusContent');
+            const icon = document.getElementById('agentStatusIcon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+
+        // Update agent status information
+        function updateAgentStatus(devices) {
+            // Count devices by agent
+            const agentCounts = {};
+            const agentLastUpdates = {};
+            
+            devices.forEach(device => {
+                const agentId = device.agent_id || 'main';
+                agentCounts[agentId] = (agentCounts[agentId] || 0) + 1;
+                agentLastUpdates[agentId] = device.received_at || new Date().toISOString();
+            });
+            
+            // Update main monitor stats
+            const mainDevices = agentCounts['main'] || 0;
+            document.getElementById('mainMonitorDevices').textContent = mainDevices;
+            document.getElementById('mainMonitorLastUpdate').textContent = 
+                agentLastUpdates['main'] ? new Date(agentLastUpdates['main']).toLocaleTimeString() : '-';
+            
+            // Update Lithuania agent stats
+            const lithuaniaDevices = agentCounts['lithuania-01'] || 0;
+            document.getElementById('lithuaniaAgentDevices').textContent = lithuaniaDevices;
+            document.getElementById('lithuaniaAgentLastUpdate').textContent = 
+                agentLastUpdates['lithuania-01'] ? new Date(agentLastUpdates['lithuania-01']).toLocaleTimeString() : '-';
+            
+            // Update Lithuania agent status
+            const lithuaniaStatus = document.getElementById('lithuaniaAgentStatus');
+            if (lithuaniaDevices > 0) {
+                lithuaniaStatus.textContent = 'Online';
+                lithuaniaStatus.className = 'agent-status-badge online';
+            } else {
+                lithuaniaStatus.textContent = 'Offline';
+                lithuaniaStatus.className = 'agent-status-badge offline';
             }
         }
 
@@ -1522,12 +1731,21 @@
             
             const historicalStats = device.historical_stats;
             
+            // Determine agent information
+            const agentInfo = device.agent_id ? 
+                `<div class="agent-badge" style="background: var(--accent-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;" title="Agent: ${device.agent_id} (${device.agent_location || 'Unknown'})">
+                    ${device.agent_id}
+                </div>` : '';
+            
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
                     <!-- DEVICE INFO -->
                     <div class="device-info">
                         <div class="info-label">Device</div>
-                        <div class="device-name">${formatDeviceName(device.display_name)}</div>
+                        <div class="device-name" style="display: flex; align-items: center;">
+                            ${formatDeviceName(device.display_name)}
+                            ${agentInfo}
+                        </div>
                     </div>
                     
                     <!-- LOCATION -->
@@ -2104,6 +2322,7 @@
                 // Update dashboard
                 updateDashboard();
                 updateDeviceList();
+                updateAgentStatus(devices);
 
                 // Hide loading, show devices
                 document.getElementById('loading').style.display = 'none';
