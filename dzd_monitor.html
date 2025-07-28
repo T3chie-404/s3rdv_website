@@ -1412,21 +1412,28 @@
             // Count devices by agent
             const agentCounts = {};
             const agentLastUpdates = {};
+            const agentDevices = {};
             
             devices.forEach(device => {
                 const agentId = device.agent_id || 'main';
                 agentCounts[agentId] = (agentCounts[agentId] || 0) + 1;
                 agentLastUpdates[agentId] = device.received_at || new Date().toISOString();
+                
+                // Track unique devices per agent
+                if (!agentDevices[agentId]) {
+                    agentDevices[agentId] = new Set();
+                }
+                agentDevices[agentId].add(device.pubkey);
             });
             
-            // Update main monitor stats
-            const mainDevices = agentCounts['main'] || 0;
+            // Update main monitor stats (devices without agent_id)
+            const mainDevices = devices.filter(d => !d.agent_id).length;
             document.getElementById('mainMonitorDevices').textContent = mainDevices;
             document.getElementById('mainMonitorLastUpdate').textContent = 
                 agentLastUpdates['main'] ? new Date(agentLastUpdates['main']).toLocaleTimeString() : '-';
             
             // Update Lithuania agent stats
-            const lithuaniaDevices = agentCounts['lithuania-01'] || 0;
+            const lithuaniaDevices = agentDevices['lithuania-01'] ? agentDevices['lithuania-01'].size : 0;
             document.getElementById('lithuaniaAgentDevices').textContent = lithuaniaDevices;
             document.getElementById('lithuaniaAgentLastUpdate').textContent = 
                 agentLastUpdates['lithuania-01'] ? new Date(agentLastUpdates['lithuania-01']).toLocaleTimeString() : '-';
@@ -1737,6 +1744,10 @@
                     ${device.agent_id}
                 </div>` : '';
             
+            // Add source indicator if device has agent data
+            const sourceIndicator = device.source === 'agent' ? 
+                `<div style="font-size: 0.6rem; color: var(--accent-purple); margin-top: 2px;">via ${device.agent_id}</div>` : '';
+            
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
                     <!-- DEVICE INFO -->
@@ -1746,6 +1757,7 @@
                             ${formatDeviceName(device.display_name)}
                             ${agentInfo}
                         </div>
+                        ${sourceIndicator}
                     </div>
                     
                     <!-- LOCATION -->
