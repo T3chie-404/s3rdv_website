@@ -120,6 +120,52 @@
             font-size: 1.2rem;
         }
 
+        .version-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .beta-notice {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 8px 0;
+            text-align: center;
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .beta-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .beta-icon {
+            font-size: 1rem;
+        }
+
+        .beta-text {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .beta-details {
+            opacity: 0.9;
+            font-size: 0.8rem;
+        }
+
         .status-indicator {
             display: flex;
             align-items: center;
@@ -1180,6 +1226,50 @@
             font-weight: 600;
         }
 
+        /* Source toggle buttons */
+        .source-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+            margin-left: 8px;
+        }
+        
+        .source-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        
+        .source-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .source-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .source-location {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
         /* Chart Legend Styles */
         .chart-legend {
             display: flex;
@@ -1283,11 +1373,21 @@
 <body>
     <div class="bg-animation"></div>
     
+    <!-- Beta Notice -->
+    <div class="beta-notice">
+        <div class="beta-content">
+            <span class="beta-icon">🚧</span>
+            <span class="beta-text">BETA - Under Construction</span>
+            <span class="beta-details">This monitoring tool is in active development</span>
+        </div>
+    </div>
+
     <header class="header">
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">🔗</div>
                 <span>DZ Device Monitor</span>
+                <span class="version-badge">v1.1.0</span>
             </div>
             <div class="status-indicator">
                 <div class="status-dot"></div>
@@ -1315,17 +1415,9 @@
                     <div class="devices-count" id="deviceCount">0 devices</div>
                 </div>
                 <div class="data-source-toggle">
-                    <label class="toggle-label">Data Source:</label>
-                    <div class="toggle-buttons">
-                        <button class="toggle-btn active" onclick="setDataSource('all')" id="toggleAll">
-                            🌐 All Sources
-                        </button>
-                        <button class="toggle-btn" onclick="setDataSource('main')" id="toggleMain">
-                            🖥️ Main Server
-                        </button>
-                        <button class="toggle-btn" onclick="setDataSource('lithuania')" id="toggleLithuania">
-                            🇱🇹 Lithuania
-                        </button>
+                    <label class="toggle-label">Monitoring Source:</label>
+                    <div id="source-toggle" class="toggle-buttons">
+                        <!-- Source buttons will be populated dynamically -->
                     </div>
                 </div>
                 <button class="refresh-btn" onclick="fetchData()">
@@ -1592,9 +1684,76 @@
     </footer>
 
     <script>
+        // Configuration
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
             : 'https://api.s3rdv.com';
+        
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+        const DASHBOARD_VERSION = '1.1.0'; // Dashboard version
+        let currentSource = 'main'; // Default to main source
+        let availableSources = []; // Will be populated from API
+        let refreshTimer = null;
+        let chartData = {}; // Store chart data per device per source
+
+        // Initialize the dashboard
+        async function initDashboard() {
+            await loadSources();
+            await loadDevices();
+            setupRefreshTimer();
+            setupSourceToggle();
+        }
+
+        // Load available monitoring sources
+        async function loadSources() {
+            try {
+                const response = await fetch(`${API_BASE}/api/sources`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    availableSources = data.data;
+                    updateSourceToggle();
+                }
+            } catch (error) {
+                console.error('Failed to load sources:', error);
+            }
+        }
+
+        // Update source toggle UI
+        function updateSourceToggle() {
+            const sourceToggle = document.getElementById('source-toggle');
+            if (!sourceToggle) return;
+
+            sourceToggle.innerHTML = '';
+            
+            availableSources.forEach(source => {
+                const button = document.createElement('button');
+                button.className = `source-btn ${source.id === currentSource ? 'active' : ''}`;
+                button.onclick = () => switchSource(source.id);
+                
+                const city = source.city || source.location || 'Unknown';
+                const asn = source.asn_name ? `(${source.asn_name})` : '';
+                
+                button.innerHTML = `
+                    <span class="source-name">${source.name}</span>
+                    <span class="source-location">${city} ${asn}</span>
+                `;
+                
+                sourceToggle.appendChild(button);
+            });
+        }
+
+        // Switch between monitoring sources
+        async function switchSource(sourceId) {
+            currentSource = sourceId;
+            updateSourceToggle();
+            await loadDevices();
+        }
+
+        // Setup source toggle event listeners
+        function setupSourceToggle() {
+            // Already handled in updateSourceToggle()
+        }
 
         let devices = [];
         let stats = {};
@@ -2559,8 +2718,11 @@
             }
         }
         
-        // Search event listeners
+        // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
+            initDashboard();
+            
+            // Search event listeners
             const searchBox = document.getElementById('searchBox');
             const searchClear = document.getElementById('searchClear');
             
@@ -2596,8 +2758,8 @@
                 if (!healthResponse.ok) throw new Error(`Health check failed: ${healthResponse.status}`);
                 health = await healthResponse.json();
 
-                // Fetch devices
-                const devicesResponse = await fetch(`${API_BASE}/api/devices`);
+                // Fetch devices for current source
+                const devicesResponse = await fetch(`${API_BASE}/api/devices?source=${currentSource}`);
                 if (!devicesResponse.ok) throw new Error(`Devices API failed: ${devicesResponse.status}`);
                 const devicesData = await devicesResponse.json();
                 devices = devicesData.data || [];
@@ -2634,8 +2796,13 @@
             }
         }
 
-        // Auto-refresh every 30 seconds
-        setInterval(fetchData, 30000);
+        // Setup refresh timer
+        function setupRefreshTimer() {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+            }
+            refreshTimer = setInterval(fetchData, REFRESH_INTERVAL);
+        }
 
         // Tools Menu Functions
         function openToolsMenu(deviceId, ipAddress, asn) {
