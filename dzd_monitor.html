@@ -1133,6 +1133,151 @@
             font-weight: 600;
             color: var(--text-primary);
         }
+
+        /* Data Source Toggle Styles */
+        .data-source-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0 1rem;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toggle-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .toggle-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        /* Chart Legend Styles */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-online {
+            background: rgba(0, 255, 136, 0.8);
+        }
+
+        .legend-offline {
+            background: rgba(255, 71, 87, 0.8);
+        }
+
+        .legend-line {
+            background: rgba(0, 212, 255, 1);
+        }
+
+        /* Chart Statistics Styles */
+        .chart-stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .chart-stats-layer {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-stats-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .chart-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .chart-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .chart-stat-label {
+            color: var(--text-muted);
+        }
+
+        .chart-stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Agent ASN Styles */
+        .agent-asn {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .agent-asn .agent-stat {
+            font-size: 0.75rem;
+        }
+
+        .agent-asn .stat-value {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -1168,6 +1313,20 @@
                 <div>
                     <h2 class="devices-title">Network Devices</h2>
                     <div class="devices-count" id="deviceCount">0 devices</div>
+                </div>
+                <div class="data-source-toggle">
+                    <label class="toggle-label">Data Source:</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn active" onclick="setDataSource('all')" id="toggleAll">
+                            🌐 All Sources
+                        </button>
+                        <button class="toggle-btn" onclick="setDataSource('main')" id="toggleMain">
+                            🖥️ Main Server
+                        </button>
+                        <button class="toggle-btn" onclick="setDataSource('lithuania')" id="toggleLithuania">
+                            🇱🇹 Lithuania
+                        </button>
+                    </div>
                 </div>
                 <button class="refresh-btn" onclick="fetchData()">
                     <span>🔄</span>
@@ -1359,6 +1518,69 @@
                 <div class="chart-container">
                     <canvas id="latencyChart"></canvas>
                 </div>
+                
+                <!-- Chart Legend -->
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-line"></div>
+                        <span>Latency Line</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-online"></div>
+                        <span>Online Status</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-offline"></div>
+                        <span>Offline Status</span>
+                    </div>
+                </div>
+                
+                <!-- Chart Statistics - Two Layers -->
+                <div class="chart-stats-container">
+                    <div class="chart-stats-layer">
+                        <div class="chart-stats-title">Current Timeframe Stats</div>
+                        <div class="chart-stats-grid">
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Min:</span>
+                                <span class="chart-stat-value" id="chartMin">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Max:</span>
+                                <span class="chart-stat-value" id="chartMax">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Avg:</span>
+                                <span class="chart-stat-value" id="chartAvg">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Points:</span>
+                                <span class="chart-stat-value" id="chartPoints">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-stats-layer">
+                        <div class="chart-stats-title">Overall Device Stats</div>
+                        <div class="chart-stats-grid">
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Total Obs:</span>
+                                <span class="chart-stat-value" id="chartTotalObs">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Min:</span>
+                                <span class="chart-stat-value" id="chart24hMin">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Max:</span>
+                                <span class="chart-stat-value" id="chart24hMax">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Avg:</span>
+                                <span class="chart-stat-value" id="chart24hAvg">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1378,6 +1600,8 @@
         let stats = {};
         let health = {};
         let latencyChart = null;
+        let currentDataSource = 'all'; // Track current data source filter
+        let monitoringSources = []; // Store monitoring sources information
         
         // Collapsible functionality
         function toggleMonitoringStats() {
@@ -1446,6 +1670,52 @@
             } else {
                 lithuaniaStatus.textContent = 'Offline';
                 lithuaniaStatus.className = 'agent-status-badge offline';
+            }
+            
+            // Update monitoring source ASN information
+            updateMonitoringSourceASN();
+        }
+        
+        // Update monitoring source ASN information
+        function updateMonitoringSourceASN() {
+            // Find main monitor source
+            const mainSource = monitoringSources.find(s => s.id === 'main');
+            if (mainSource && mainSource.asn) {
+                const mainMonitorCard = document.querySelector('.agent-card:first-child');
+                if (mainMonitorCard) {
+                    let asnInfo = mainMonitorCard.querySelector('.agent-asn');
+                    if (!asnInfo) {
+                        asnInfo = document.createElement('div');
+                        asnInfo.className = 'agent-asn';
+                        mainMonitorCard.querySelector('.agent-details').appendChild(asnInfo);
+                    }
+                    asnInfo.innerHTML = `
+                        <div class="agent-stat">
+                            <span class="stat-label">ASN:</span>
+                            <span class="stat-value">${mainSource.asn} (${mainSource.asn_name || 'Unknown'})</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Find Lithuania agent source
+            const lithuaniaSource = monitoringSources.find(s => s.id === 'lithuania-01');
+            if (lithuaniaSource && lithuaniaSource.asn) {
+                const lithuaniaCard = document.querySelector('.agent-card:last-child');
+                if (lithuaniaCard) {
+                    let asnInfo = lithuaniaCard.querySelector('.agent-asn');
+                    if (!asnInfo) {
+                        asnInfo = document.createElement('div');
+                        asnInfo.className = 'agent-asn';
+                        lithuaniaCard.querySelector('.agent-details').appendChild(asnInfo);
+                    }
+                    asnInfo.innerHTML = `
+                        <div class="agent-stat">
+                            <span class="stat-label">ASN:</span>
+                            <span class="stat-value">${lithuaniaSource.asn} (${lithuaniaSource.asn_name || 'Unknown'})</span>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -1848,38 +2118,8 @@
 
         // Update device list with smooth refresh
         function updateDeviceList() {
-            const devicesGrid = document.getElementById('devicesGrid');
-            
-            if (!devices || devices.length === 0) {
-                devicesGrid.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No devices found</p>';
-                return;
-            }
-
-            // Sort devices by deviation score
-            const sortedDevices = sortDevicesByDeviation(devices);
-            
-            // Check if we need to rebuild the entire list or just update existing cards
-            const existingCards = devicesGrid.querySelectorAll('.device-card');
-            const needsRebuild = existingCards.length !== sortedDevices.length;
-            
-            if (needsRebuild) {
-                // Full rebuild needed (new devices added/removed)
-                const deviceCards = sortedDevices.map(createDeviceCard).join('');
-                devicesGrid.innerHTML = deviceCards;
-            } else {
-                // Update existing cards smoothly
-                sortedDevices.forEach((device, index) => {
-                    const existingCard = existingCards[index];
-                    if (existingCard && existingCard.dataset.deviceId === device.pubkey) {
-                        updateDeviceCard(device.pubkey, device);
-                    }
-                });
-            }
-            
-            // Apply search filter after updating devices
-            if (typeof filterDevices === 'function') {
-                filterDevices();
-            }
+            // Use the new filtering system
+            filterDevicesBySource();
         }
 
         // Modal functionality
@@ -1903,6 +2143,49 @@
             document.getElementById('modalDeviceIP').textContent = device.public_ip || 'N/A';
             document.getElementById('modalDeviceASN').textContent = device.asn ? `${device.asn} (${device.asn_name || 'Unknown'})` : 'N/A';
             document.getElementById('modalDeviceLatency').textContent = device.latency ? `${device.latency}ms` : 'N/A';
+            
+            // Add monitoring source ASN information if device comes from an agent
+            if (device.agent_id) {
+                const sourceASN = monitoringSources.find(s => s.id === device.agent_id);
+                if (sourceASN && sourceASN.asn) {
+                    // Add monitoring source ASN to the modal
+                    const modalBody = document.querySelector('.modal-body');
+                    let sourceInfo = modalBody.querySelector('.monitoring-source-info');
+                    if (!sourceInfo) {
+                        sourceInfo = document.createElement('div');
+                        sourceInfo.className = 'monitoring-source-info';
+                        sourceInfo.style.cssText = 'margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);';
+                        modalBody.insertBefore(sourceInfo, modalBody.querySelector('.history-controls'));
+                    }
+                    sourceInfo.innerHTML = `
+                        <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">📡 Monitoring Source</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                            <div>
+                                <span style="color: var(--text-muted);">Agent:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.agent_id}</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Location:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.agent_location}</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Source ASN:</span>
+                                <span style="color: var(--accent-purple); font-weight: 600;">${sourceASN.asn} (${sourceASN.asn_name || 'Unknown'})</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Received:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.received_at ? new Date(device.received_at).toLocaleString() : 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Remove monitoring source info if device is from main monitor
+                const sourceInfo = document.querySelector('.monitoring-source-info');
+                if (sourceInfo) {
+                    sourceInfo.remove();
+                }
+            }
             
             // Load earliest observed date
             loadEarliestObserved(device.pubkey);
@@ -2056,7 +2339,7 @@
                 status === 'online' ? 'rgba(0, 255, 136, 0.8)' : 'rgba(255, 71, 87, 0.8)'
             );
             
-            // Create the chart
+            // Create the chart with finer markers
             latencyChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -2071,8 +2354,10 @@
                         tension: 0.4,
                         pointBackgroundColor: colors,
                         pointBorderColor: colors,
-                        pointRadius: 3,
-                        pointHoverRadius: 6
+                        pointRadius: 1.5, // Smaller dots
+                        pointHoverRadius: 4, // Smaller hover radius
+                        pointBorderWidth: 1,
+                        pointStyle: 'circle'
                     }]
                 },
                 options: {
@@ -2095,10 +2380,7 @@
                             }
                         },
                         legend: {
-                            display: true,
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.8)'
-                            }
+                            display: false // Hide built-in legend since we have custom one
                         },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.9)',
@@ -2172,33 +2454,28 @@
                 }
             });
             
-            // Add statistics below the chart
+            // Populate chart statistics
             const stats = chartData.stats;
             if (stats) {
-                const statsHtml = `
-                    <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <h4 style="color: var(--accent-primary); margin-bottom: 0.5rem;">Chart Statistics</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; font-size: 0.9rem;">
-                            <div>
-                                <span style="color: var(--text-muted);">Min:</span>
-                                <span style="color: var(--accent-success); font-weight: 600;">${stats.min ? stats.min.toFixed(1) + 'ms' : 'N/A'}</span>
-                            </div>
-                            <div>
-                                <span style="color: var(--text-muted);">Max:</span>
-                                <span style="color: var(--accent-danger); font-weight: 600;">${stats.max ? stats.max.toFixed(1) + 'ms' : 'N/A'}</span>
-                            </div>
-                            <div>
-                                <span style="color: var(--text-muted);">Avg:</span>
-                                <span style="color: var(--accent-primary); font-weight: 600;">${stats.avg ? stats.avg.toFixed(1) + 'ms' : 'N/A'}</span>
-                            </div>
-                            <div>
-                                <span style="color: var(--text-muted);">Points:</span>
-                                <span style="color: var(--text-secondary); font-weight: 600;">${stats.count || 0}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                chartContainer.insertAdjacentHTML('beforeend', statsHtml);
+                // Current timeframe stats
+                document.getElementById('chartMin').textContent = stats.min ? `${stats.min.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartMax').textContent = stats.max ? `${stats.max.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartAvg').textContent = stats.avg ? `${stats.avg.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartPoints').textContent = stats.count || 'N/A';
+                
+                // Overall device stats (from device historical_stats)
+                if (currentDevice.historical_stats) {
+                    const deviceStats = currentDevice.historical_stats;
+                    document.getElementById('chartTotalObs').textContent = deviceStats.observations || 'N/A';
+                    document.getElementById('chart24hMin').textContent = deviceStats.min ? `${deviceStats.min.toFixed(1)}ms` : 'N/A';
+                    document.getElementById('chart24hMax').textContent = deviceStats.max ? `${deviceStats.max.toFixed(1)}ms` : 'N/A';
+                    document.getElementById('chart24hAvg').textContent = deviceStats.avg ? `${deviceStats.avg.toFixed(1)}ms` : 'N/A';
+                } else {
+                    document.getElementById('chartTotalObs').textContent = 'N/A';
+                    document.getElementById('chart24hMin').textContent = 'N/A';
+                    document.getElementById('chart24hMax').textContent = 'N/A';
+                    document.getElementById('chart24hAvg').textContent = 'N/A';
+                }
             }
         }
 
@@ -2331,6 +2608,13 @@
                 const statsData = await statsResponse.json();
                 stats = statsData.data || {};
 
+                // Fetch monitoring sources
+                const sourcesResponse = await fetch(`${API_BASE}/api/sources`);
+                if (sourcesResponse.ok) {
+                    const sourcesData = await sourcesResponse.json();
+                    monitoringSources = sourcesData.data || [];
+                }
+
                 // Update dashboard
                 updateDashboard();
                 updateDeviceList();
@@ -2436,6 +2720,81 @@
 
         // Initial load
         fetchData();
+
+        // Data source toggle functionality
+        function setDataSource(source) {
+            currentDataSource = source;
+            
+            // Update button states
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`toggle${source.charAt(0).toUpperCase() + source.slice(1)}`).classList.add('active');
+            
+            // Filter and update device list
+            filterDevicesBySource();
+        }
+        
+        // Filter devices by data source
+        function filterDevicesBySource() {
+            let filteredDevices = [];
+            
+            switch (currentDataSource) {
+                case 'main':
+                    filteredDevices = devices.filter(d => !d.agent_id);
+                    break;
+                case 'lithuania':
+                    filteredDevices = devices.filter(d => d.agent_id === 'lithuania-01');
+                    break;
+                case 'all':
+                default:
+                    filteredDevices = devices;
+                    break;
+            }
+            
+            // Update device list with filtered data
+            updateDeviceListWithData(filteredDevices);
+        }
+        
+        // Update device list with specific data
+        function updateDeviceListWithData(deviceData) {
+            const devicesGrid = document.getElementById('devicesGrid');
+            
+            if (!deviceData || deviceData.length === 0) {
+                devicesGrid.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No devices found for selected data source</p>';
+                document.getElementById('deviceCount').textContent = '0 devices';
+                return;
+            }
+
+            // Sort devices by deviation score
+            const sortedDevices = sortDevicesByDeviation(deviceData);
+            
+            // Check if we need to rebuild the entire list or just update existing cards
+            const existingCards = devicesGrid.querySelectorAll('.device-card');
+            const needsRebuild = existingCards.length !== sortedDevices.length;
+            
+            if (needsRebuild) {
+                // Full rebuild needed (new devices added/removed)
+                const deviceCards = sortedDevices.map(createDeviceCard).join('');
+                devicesGrid.innerHTML = deviceCards;
+            } else {
+                // Update existing cards smoothly
+                sortedDevices.forEach((device, index) => {
+                    const existingCard = existingCards[index];
+                    if (existingCard && existingCard.dataset.deviceId === device.pubkey) {
+                        updateDeviceCard(device.pubkey, device);
+                    }
+                });
+            }
+            
+            // Update device count
+            document.getElementById('deviceCount').textContent = `${sortedDevices.length} devices`;
+            
+            // Apply search filter after updating devices
+            if (typeof filterDevices === 'function') {
+                filterDevices();
+            }
+        }
     </script>
 </body>
 </html>
