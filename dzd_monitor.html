@@ -1075,110 +1075,7 @@
             }
         }
 
-        /* Agent Status Styles */
-        .agent-status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
 
-        .agent-card {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .agent-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--accent-primary);
-        }
-
-        .agent-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .agent-icon {
-            font-size: 2rem;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-        }
-
-        .agent-info {
-            flex: 1;
-        }
-
-        .agent-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.2rem;
-        }
-
-        .agent-location {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .agent-status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .agent-status-badge.online {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--accent-success);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-        .agent-status-badge.offline {
-            background: rgba(255, 71, 87, 0.2);
-            color: var(--accent-danger);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-        }
-
-        .agent-status-badge.connecting {
-            background: rgba(255, 170, 0, 0.2);
-            color: var(--accent-warning);
-            border: 1px solid rgba(255, 170, 0, 0.3);
-        }
-
-        .agent-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .agent-stat {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .agent-stat .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .agent-stat .stat-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
 
         /* Data Source Toggle Styles */
         .data-source-toggle {
@@ -1353,21 +1250,7 @@
             color: var(--text-primary);
         }
 
-        /* Agent ASN Styles */
-        .agent-asn {
-            margin-top: 0.5rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
 
-        .agent-asn .agent-stat {
-            font-size: 0.75rem;
-        }
-
-        .agent-asn .stat-value {
-            color: var(--accent-purple);
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
@@ -1381,7 +1264,7 @@
             <span class="beta-details">This monitoring tool is in active development</span>
         </div>
     </div>
-
+    
     <header class="header">
         <div class="header-content">
             <div class="logo">
@@ -1456,20 +1339,20 @@
                 <span class="collapsible-icon" id="monitoringStatsIcon">▼</span>
             </div>
             <div class="collapsible-content" id="monitoringStatsContent">
-                <div class="stats-grid">
-                    <div class="stat-card">
+            <div class="stats-grid">
+                <div class="stat-card">
                         <div class="stat-value" id="totalDevices">-</div>
                         <div class="stat-label">Total Devices</div>
-                    </div>
-                    <div class="stat-card">
+                </div>
+                <div class="stat-card">
                         <div class="stat-value" id="onlineDevices">-</div>
                         <div class="stat-label">Online Devices</div>
-                    </div>
-                    <div class="stat-card">
+                </div>
+                <div class="stat-card">
                         <div class="stat-value" id="totalObservations">-</div>
                         <div class="stat-label">Total Observations</div>
-                    </div>
-                    <div class="stat-card">
+                </div>
+                <div class="stat-card">
                         <div class="stat-value" id="firstData">-</div>
                         <div class="stat-label">First Data</div>
                     </div>
@@ -1477,60 +1360,7 @@
             </div>
         </div>
 
-        <!-- Agent Status -->
-        <div class="devices-container fade-in">
-            <div class="collapsible-header" onclick="toggleAgentStatus()">
-                <h2 class="devices-title" style="margin: 0; font-size: 1.3rem;">
-                    🤖 Agent Status
-                </h2>
-                <span class="collapsible-icon" id="agentStatusIcon">▼</span>
-            </div>
-            <div class="collapsible-content" id="agentStatusContent">
-                <div class="agent-status-grid">
-                    <div class="agent-card">
-                        <div class="agent-header">
-                            <div class="agent-icon">🖥️</div>
-                            <div class="agent-info">
-                                <div class="agent-name">Main Monitor</div>
-                                <div class="agent-location">Central Server</div>
-                            </div>
-                            <div class="agent-status-badge online">Online</div>
-                        </div>
-                        <div class="agent-details">
-                            <div class="agent-stat">
-                                <span class="stat-label">Devices:</span>
-                                <span class="stat-value" id="mainMonitorDevices">-</span>
-                            </div>
-                            <div class="agent-stat">
-                                <span class="stat-label">Last Update:</span>
-                                <span class="stat-value" id="mainMonitorLastUpdate">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="agent-card">
-                        <div class="agent-header">
-                            <div class="agent-icon">🇱🇹</div>
-                            <div class="agent-info">
-                                <div class="agent-name">Lithuania-01</div>
-                                <div class="agent-location">Lithuania</div>
-                            </div>
-                            <div class="agent-status-badge" id="lithuaniaAgentStatus">Connecting...</div>
-                        </div>
-                        <div class="agent-details">
-                            <div class="agent-stat">
-                                <span class="stat-label">Devices:</span>
-                                <span class="stat-value" id="lithuaniaAgentDevices">-</span>
-                            </div>
-                            <div class="agent-stat">
-                                <span class="stat-label">Last Update:</span>
-                                <span class="stat-value" id="lithuaniaAgentLastUpdate">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- API Documentation Link -->
         <div class="devices-container fade-in">
@@ -1554,9 +1384,9 @@
                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
                     📚 View API Documentation
                 </a>
-            </div>
-        </div>
-        </div>
+                </div>
+                </div>
+                </div>
 
     <!-- Device Detail Modal -->
     <div id="deviceModal" class="modal">
@@ -1691,76 +1521,27 @@
         
         const REFRESH_INTERVAL = 30000; // 30 seconds
         const DASHBOARD_VERSION = '1.1.0'; // Dashboard version
-        let currentSource = 'main'; // Default to main source
-        let availableSources = []; // Will be populated from API
+
+
         let refreshTimer = null;
         let chartData = {}; // Store chart data per device per source
 
         // Initialize the dashboard
         async function initDashboard() {
-            await loadSources();
             await loadDevices();
             setupRefreshTimer();
-            setupSourceToggle();
         }
 
-        // Load available monitoring sources
-        async function loadSources() {
-            try {
-                const response = await fetch(`${API_BASE}/api/sources`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    availableSources = data.data;
-                    updateSourceToggle();
-                }
-            } catch (error) {
-                console.error('Failed to load sources:', error);
-            }
-        }
 
-        // Update source toggle UI
-        function updateSourceToggle() {
-            const sourceToggle = document.getElementById('source-toggle');
-            if (!sourceToggle) return;
 
-            sourceToggle.innerHTML = '';
-            
-            availableSources.forEach(source => {
-                const button = document.createElement('button');
-                button.className = `source-btn ${source.id === currentSource ? 'active' : ''}`;
-                button.onclick = () => switchSource(source.id);
-                
-                const city = source.city || source.location || 'Unknown';
-                const asn = source.asn_name ? `(${source.asn_name})` : '';
-                
-                button.innerHTML = `
-                    <span class="source-name">${source.name}</span>
-                    <span class="source-location">${city} ${asn}</span>
-                `;
-                
-                sourceToggle.appendChild(button);
-            });
-        }
 
-        // Switch between monitoring sources
-        async function switchSource(sourceId) {
-            currentSource = sourceId;
-            updateSourceToggle();
-            await loadDevices();
-        }
-
-        // Setup source toggle event listeners
-        function setupSourceToggle() {
-            // Already handled in updateSourceToggle()
-        }
 
         let devices = [];
         let stats = {};
         let health = {};
         let latencyChart = null;
-        let currentDataSource = 'all'; // Track current data source filter
-        let monitoringSources = []; // Store monitoring sources information
+
+
         
         // Collapsible functionality
         function toggleMonitoringStats() {
@@ -1777,106 +1558,9 @@
         }
 
         // Agent status toggle functionality
-        function toggleAgentStatus() {
-            const content = document.getElementById('agentStatusContent');
-            const icon = document.getElementById('agentStatusIcon');
-            
-            if (content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                icon.classList.remove('expanded');
-            } else {
-                content.classList.add('expanded');
-                icon.classList.add('expanded');
-            }
-        }
 
-        // Update agent status information
-        function updateAgentStatus(devices) {
-            // Count devices by agent
-            const agentCounts = {};
-            const agentLastUpdates = {};
-            const agentDevices = {};
-            
-            devices.forEach(device => {
-                const agentId = device.agent_id || 'main';
-                agentCounts[agentId] = (agentCounts[agentId] || 0) + 1;
-                agentLastUpdates[agentId] = device.received_at || new Date().toISOString();
-                
-                // Track unique devices per agent
-                if (!agentDevices[agentId]) {
-                    agentDevices[agentId] = new Set();
-                }
-                agentDevices[agentId].add(device.pubkey);
-            });
-            
-            // Update main monitor stats (devices without agent_id)
-            const mainDevices = devices.filter(d => !d.agent_id).length;
-            document.getElementById('mainMonitorDevices').textContent = mainDevices;
-            document.getElementById('mainMonitorLastUpdate').textContent = 
-                agentLastUpdates['main'] ? new Date(agentLastUpdates['main']).toLocaleTimeString() : '-';
-            
-            // Update Lithuania agent stats
-            const lithuaniaDevices = agentDevices['lithuania-01'] ? agentDevices['lithuania-01'].size : 0;
-            document.getElementById('lithuaniaAgentDevices').textContent = lithuaniaDevices;
-            document.getElementById('lithuaniaAgentLastUpdate').textContent = 
-                agentLastUpdates['lithuania-01'] ? new Date(agentLastUpdates['lithuania-01']).toLocaleTimeString() : '-';
-            
-            // Update Lithuania agent status
-            const lithuaniaStatus = document.getElementById('lithuaniaAgentStatus');
-            if (lithuaniaDevices > 0) {
-                lithuaniaStatus.textContent = 'Online';
-                lithuaniaStatus.className = 'agent-status-badge online';
-            } else {
-                lithuaniaStatus.textContent = 'Offline';
-                lithuaniaStatus.className = 'agent-status-badge offline';
-            }
-            
-            // Update monitoring source ASN information
-            updateMonitoringSourceASN();
-        }
-        
-        // Update monitoring source ASN information
-        function updateMonitoringSourceASN() {
-            // Find main monitor source
-            const mainSource = monitoringSources.find(s => s.id === 'main');
-            if (mainSource && mainSource.asn) {
-                const mainMonitorCard = document.querySelector('.agent-card:first-child');
-                if (mainMonitorCard) {
-                    let asnInfo = mainMonitorCard.querySelector('.agent-asn');
-                    if (!asnInfo) {
-                        asnInfo = document.createElement('div');
-                        asnInfo.className = 'agent-asn';
-                        mainMonitorCard.querySelector('.agent-details').appendChild(asnInfo);
-                    }
-                    asnInfo.innerHTML = `
-                        <div class="agent-stat">
-                            <span class="stat-label">ASN:</span>
-                            <span class="stat-value">${mainSource.asn} (${mainSource.asn_name || 'Unknown'})</span>
-                        </div>
-                    `;
-                }
-            }
-            
-            // Find Lithuania agent source
-            const lithuaniaSource = monitoringSources.find(s => s.id === 'lithuania-01');
-            if (lithuaniaSource && lithuaniaSource.asn) {
-                const lithuaniaCard = document.querySelector('.agent-card:last-child');
-                if (lithuaniaCard) {
-                    let asnInfo = lithuaniaCard.querySelector('.agent-asn');
-                    if (!asnInfo) {
-                        asnInfo = document.createElement('div');
-                        asnInfo.className = 'agent-asn';
-                        lithuaniaCard.querySelector('.agent-details').appendChild(asnInfo);
-                    }
-                    asnInfo.innerHTML = `
-                        <div class="agent-stat">
-                            <span class="stat-label">ASN:</span>
-                            <span class="stat-value">${lithuaniaSource.asn} (${lithuaniaSource.asn_name || 'Unknown'})</span>
-                        </div>
-                    `;
-                }
-            }
-        }
+
+
 
         // Format uptime
         function formatUptime(seconds) {
@@ -2167,26 +1851,16 @@
             
             const historicalStats = device.historical_stats;
             
-            // Determine agent information
-            const agentInfo = device.agent_id ? 
-                `<div class="agent-badge" style="background: var(--accent-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;" title="Agent: ${device.agent_id} (${device.agent_location || 'Unknown'})">
-                    ${device.agent_id}
-                </div>` : '';
-            
-            // Add source indicator if device has agent data
-            const sourceIndicator = device.source === 'agent' ? 
-                `<div style="font-size: 0.6rem; color: var(--accent-purple); margin-top: 2px;">via ${device.agent_id}</div>` : '';
+
             
             return `
                 <div class="device-card fade-in" data-device-id="${device.pubkey}">
                     <!-- DEVICE INFO -->
                     <div class="device-info">
                         <div class="info-label">Device</div>
-                        <div class="device-name" style="display: flex; align-items: center;">
+                        <div class="device-name">
                             ${formatDeviceName(device.display_name)}
-                            ${agentInfo}
                         </div>
-                        ${sourceIndicator}
                     </div>
                     
                     <!-- LOCATION -->
@@ -2377,7 +2051,7 @@
                     // Format the date
                     const formattedDate = earliest.toLocaleDateString() + ' ' + earliest.toLocaleTimeString();
                     document.getElementById('modalDeviceEarliest').textContent = formattedDate;
-                } else {
+            } else {
                     document.getElementById('modalDeviceEarliest').textContent = 'No data available';
                 }
             } catch (error) {
@@ -2759,7 +2433,7 @@
                 health = await healthResponse.json();
 
                 // Fetch devices for current source
-                const devicesResponse = await fetch(`${API_BASE}/api/devices?source=${currentSource}`);
+                const devicesResponse = await fetch(`${API_BASE}/api/devices`);
                 if (!devicesResponse.ok) throw new Error(`Devices API failed: ${devicesResponse.status}`);
                 const devicesData = await devicesResponse.json();
                 devices = devicesData.data || [];
@@ -2780,7 +2454,7 @@
                 // Update dashboard
                 updateDashboard();
                 updateDeviceList();
-                updateAgentStatus(devices);
+
 
                 // Hide loading, show devices
                 document.getElementById('loading').style.display = 'none';

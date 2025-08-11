@@ -1103,4 +1103,110 @@ Dashboard (s3rdv.com/dzd_monitor)
 - **Geographic Analysis**: Identify location-specific network issues
 - **Scalable**: Easy to add more agents in different locations
 
+---
+
+## 2025-08-11 - Revert Agent Changes to Restore Core Functionality
+
+### **Context**
+User requested to revert the monitoring service and website back to before the agent was added (2025-07-27 entry), as the agent functionality added too much complexity and broke core monitoring functions. The API was returning empty data due to source filtering expecting agent data.
+
+### **Issues Identified**
+- **Empty API Response**: `/api/devices` returning `{"success":true,"data":[],"source_filter":"main"}` 
+- **Source Filtering**: Monitoring service modified to expect data from different sources (main vs agent)
+- **Data Storage Changes**: Device data stored with source keys (`${pubkey}_${source}`) instead of simple keys
+- **Missing Methods**: Service trying to call removed agent methods like `initializeMainServerASN`
+
+### **Changes Made**
+
+#### **Backend Revert** (`dz-device-monitor`)
+1. **Backed up agent version**: `src_backup_with_agent/` and `monitoring_with_agent.js.bak`
+2. **Removed agent endpoints**: Deleted `/api/agent/data`, `/api/agent/status`, `/api/agent/config`, `/api/sources`
+3. **Restored simple API**: `/api/devices` endpoint no longer uses source filtering
+4. **Fixed data storage**: 
+   - `pingData.set(pubkey, data)` instead of `pingData.set(${pubkey}_${source}, data)`
+   - `historicalData.get(deviceId)` instead of `historicalData.get(${deviceId}_${source})`
+5. **Updated method signatures**:
+   - `getDeviceStatus()` - removed sourceFilter parameter
+   - `calculateDeviceStats(deviceId)` - removed source parameter  
+   - `getHistoricalData(deviceId)` - removed source parameter
+   - `addHistoricalObservation(deviceId, observation)` - removed source parameter
+6. **Removed agent methods**: `processAgentData`, `processAgentStatus`, `getAgentConfig`, `getMonitoringSources`, `initializeMainServerASN`
+7. **Removed monitoring sources**: Deleted `this.monitoringSources` object
+8. **Cleaned device data**: Removed `source: 'main'` from ping observations
+
+#### **API Response Format**
+- **Before**: `{"success":true,"data":[],"source_filter":"main"}`
+- **After**: `{"success":true,"data":[...devices...],"timestamp":"..."}`
+
+### **Testing Results**
+- ✅ **API Working**: `/api/devices` now returns 2 devices with full data
+- ✅ **Stats Working**: `/api/stats` returns monitoring statistics  
+- ✅ **Health Working**: `/health` endpoint functional
+- ✅ **Service Stable**: No more crashes or restart loops
+- ✅ **Data Restored**: Historical data (136,806 observations) preserved
+
+### **Sample API Response**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "pubkey": "hWffRFpLrsZoF5r9qJS6AL2D9TEmSvPUBEbDrLc111Y",
+      "code": "fra-dz-001-x",
+      "location": "Frankfurt",
+      "type": "Switch",
+      "latency": 112,
+      "latency_status": "online",
+      "asn": "1299",
+      "asn_name": "Arelion, f/k/a Telia Carrier",
+      "historical_stats": {
+        "min": 112,
+        "max": 132,
+        "avg": 122,
+        "observations": 2
+      }
+    }
+  ],
+  "timestamp": "2025-08-11T11:17:41.550Z"
+}
+```
+
+### **Files Modified**
+- `/home/ubuntu/dz-device-monitor/src/index.js` - Removed agent endpoints, restored simple API
+- `/home/ubuntu/dz-device-monitor/src/services/monitoring.js` - Complete revert to pre-agent state
+- Backup files created: `src_backup_with_agent/`, `monitoring_with_agent.js.bak`
+
+### **Benefits**
+- **Restored Core Functionality**: Monitoring service working as before agent complexity
+- **Simplified Architecture**: Removed multi-source complexity that wasn't needed
+- **Data Integrity**: All historical data preserved (136K+ observations)
+- **Stable Service**: No more crashes or missing method errors
+- **Clean API**: Simple, predictable API responses
+
+### **Agent Status**
+- **Agent Directory**: `/home/ubuntu/dzdmon_agent` - Left intact but not used
+- **Agent Service**: Not deployed or running
+- **Future**: Agent can be re-implemented later with proper integration
+
+### **Dashboard Compatibility**
+The s3rdv.com dashboard should now work correctly with the restored API endpoints, showing device monitoring data as before the agent changes.
+
+#### **Website Revert** (`s3rdv_website`)
+1. **Backed up dashboard**: `dzd_monitor_with_agent.html.bak`
+2. **Removed Agent Status section**: Deleted entire Agent Status HTML section and CSS
+3. **Removed source filtering**: Changed API call from `${API_BASE}/api/devices?source=${currentSource}` to `${API_BASE}/api/devices`
+4. **Removed agent JavaScript**:
+   - `currentSource`, `currentDataSource` variables
+   - `loadSources()`, `updateSourceToggle()`, `switchSource()` functions
+   - `toggleAgentStatus()`, `updateAgentStatus()`, `updateMonitoringSourceASN()` functions
+   - `setDataSource()`, `filterDevicesBySource()` functions
+5. **Cleaned device cards**: Removed agent badges, agent info, source indicators
+6. **Removed agent CSS**: Deleted all `.agent-*` CSS classes and styles
+
+#### **Dashboard Status**
+- ✅ **API Integration**: Dashboard now calls simple `/api/devices` endpoint
+- ✅ **Device Display**: Shows devices without agent complexity
+- ✅ **Core Features**: Search, charts, historical data all working
+- ✅ **UI Clean**: Removed all agent-related UI elements
+
 --- 
