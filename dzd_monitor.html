@@ -1267,9 +1267,9 @@
     
     <header class="header">
         <div class="header-content">
-            <div class="logo">
-                <div class="logo-icon">🔗</div>
-                <span>DZ Device Monitor</span>
+            <div class="logo" style="display:flex;align-items:center;gap:0.5rem;">
+                <img src="/assets/images/branding/wide/S3V_Transparent logo_wide_6k.png" alt="S3RDV" style="height:24px;width:auto;display:block;"/>
+                <span style="opacity:0.85;">DZ Device Monitor</span>
                 <span class="version-badge">v1.1.0</span>
             </div>
             <div class="status-indicator">
@@ -2444,12 +2444,8 @@
                 const statsData = await statsResponse.json();
                 stats = statsData.data || {};
 
-                // Fetch monitoring sources
-                const sourcesResponse = await fetch(`${API_BASE}/api/sources`);
-                if (sourcesResponse.ok) {
-                    const sourcesData = await sourcesResponse.json();
-                    monitoringSources = sourcesData.data || [];
-                }
+                // Note: /api/sources endpoint removed during agent revert
+                monitoringSources = [];
 
                 // Update dashboard
                 updateDashboard();

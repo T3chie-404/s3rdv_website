@@ -4,10 +4,17 @@ title: S3RDV LLC
 ---
 
 <div class="hero-section">
-  <p class="hero-subtitle">Solana Blockchain Infrastructure</p>
-  <p class="hero-description">
-    S3RDV LLC is a leading provider of Solana blockchain infrastructure services, specializing in validator operations and network infrastructure support. We are committed to strengthening the Solana ecosystem through reliable, high-performance infrastructure solutions.
-  </p>
+  <div class="hero-media">
+    <video class="hero-video" autoplay muted loop playsinline poster="/assets/images/branding/wide/S3V_wide_96dpi_2k_small.jpg">
+      <source src="/assets/videos/branding/S3V_video_bg_2k_low.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+      <p class="hero-subtitle">Solana Blockchain Infrastructure</p>
+      <p class="hero-description">
+        S3RDV LLC is a leading provider of Solana blockchain infrastructure services, specializing in validator operations and network infrastructure support. We are committed to strengthening the Solana ecosystem through reliable, high-performance infrastructure solutions.
+      </p>
+    </div>
+  </div>
 </div>
 
 ---
@@ -151,22 +158,46 @@ title: S3RDV LLC
 </div>
 
 <style>
+  .hero-media {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .hero-video {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    filter: saturate(1.2) hue-rotate(15deg) brightness(0.9);
+    background: #0a0a0f;
+    display: block;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(180deg, rgba(10,10,15,0.4) 0%, rgba(10,10,15,0.9) 100%);
+  }
   .hero-section {
     text-align: center;
     margin-bottom: 3rem;
   }
   
   .hero-subtitle {
-    font-size: 1.5rem;
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 1.5rem;
   }
   
   .hero-description {
-    font-size: 1.1rem;
-    max-width: 800px;
-    margin: 0 auto;
-    color: var(--text-muted);
+    font-size: 1.25rem;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    max-width: 900px;
   }
   
   .services-grid {
@@ -262,6 +293,7 @@ title: S3RDV LLC
   }
   
   @media (max-width: 768px) {
+    .hero-video { height: 240px; }
     .services-grid,
     .features-grid,
     .tech-grid {

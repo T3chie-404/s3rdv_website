@@ -8,7 +8,9 @@
   <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
   
   <!-- CSS -->
   <link rel="stylesheet" href="{{ '/assets/css/dark-theme.css' | relative_url }}">
@@ -36,8 +38,9 @@
   <header class="site-header">
     <div class="wrapper">
       <div class="site-header-content">
-        <a class="site-title" href="{{ "/" | relative_url }}">
-          {{ site.title }}
+        <a class="site-title" href="{{ "/" | relative_url }}" aria-label="{{ site.title }}">
+          <img class="site-logo" src="/assets/images/branding/wide/S3V_Transparent logo_wide_6k.png" alt="{{ site.title }} logo">
+          <span class="visually-hidden">{{ site.title }}</span>
         </a>
         <nav class="site-nav">
           <div class="trigger">
@@ -61,16 +64,14 @@
   <footer class="site-footer">
     <div class="wrapper">
       <div class="footer-content">
-        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }}. All rights reserved.</p>
+        <p>&copy; {{ site.time | date: '%Y' }} South 3rd Ventures LLC. All rights reserved.</p>
         <p>Strengthening the Solana ecosystem through reliable infrastructure.</p>
         <div class="footer-links">
           <a href="mailto:{{ site.email }}">Contact</a>
           <span class="separator">|</span>
           <a href="https://github.com/{{ site.github_username }}" target="_blank">GitHub</a>
-          {% if site.twitter_username %}
           <span class="separator">|</span>
-          <a href="https://twitter.com/{{ site.twitter_username }}" target="_blank">Twitter</a>
-          {% endif %}
+          <a href="https://x.com/S3rdVentures" target="_blank">X</a>
         </div>
       </div>
     </div>

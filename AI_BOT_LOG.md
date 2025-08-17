@@ -1210,3 +1210,225 @@ The s3rdv.com dashboard should now work correctly with the restored API endpoint
 - ✅ **UI Clean**: Removed all agent-related UI elements
 
 --- 
+
+## 2025-08-13 - Branding Integration (Local Preview)
+
+### Changes Made:
+- Updated global layout `/_layouts/default.html` to use new wide logo and modern favicon links (temporary mapping to branding square PNG until dedicated favicons provided).
+- Added header logo CSS and accessibility helpers in `/_includes/head-custom.html`.
+- Integrated hero background video on `index.md` with overlay text and responsive sizing, using `/assets/videos/branding/S3V_video_bg_2k_low.mp4` and a poster image.
+- Replaced text-only headers with branded logo in `dzd_monitor.html` and `api-docs.html`.
+
+### Assets Used:
+- Wide logos from `assets/images/branding/wide/` (primary: `S3V_Transparent logo_wide_6k.png`).
+- Square symbol from `assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png` (used for temporary favicon links and apple-touch-icon).
+- Video background from `assets/videos/branding/S3V_video_bg_2k_low.mp4`.
+
+### Notes:
+- Favicons are currently pointed at PNG placeholders; recommend providing proper `favicon-32x32.png`, `favicon-16x16.png`, `apple-touch-icon.png`, and `site.webmanifest` for production.
+- All changes prepared on a feature branch and intended for local preview before public release.
+
+---
+## 2024-09-13 - Installing New Graphics on s3rdv.com
+
+### Context
+The user requested to install new graphics on their Jekyll website hosted at https://s3rdv.com on GitHub Pages. Based on repository analysis:
+- New branding assets found in assets/images/branding/ (PNGs, JPGs for logos and symbols)
+- New video asset in assets/videos/branding/ (MP4 for hero background)
+- New SVG icons in assets/images/ (validator-icon.svg, infrastructure-icon.svg, blockchain-network.svg)
+- These are already referenced in index.md, _layouts/default.html, api-docs.html, dzd_monitor.html
+- Site is on branch 'branding-refresh' with untracked assets and modified files ready for commit
+
+### Reasoning
+- The 'new graphics' refer to the branding images, video, and SVGs recently added but not yet committed/pushed.
+- They are integrated into the site structure (hero video, logos, favicons, service icons).
+- To 'install' means adding to git, committing, performing security sweep, and pushing to deploy on GitHub Pages.
+- Selected all relevant graphics as 'some of them' wasn't specified; excluded backups like dzd_monitor_with_agent.html.bak.
+- Followed user preferences: Provide commit/push commands, run security sweep, use absolute paths, document verbosely here.
+
+### Changes Planned (Not Executed)
+- git add assets/images/branding/ assets/videos/ (add new graphics)
+- git add modified files (AI_BOT_LOG.md, index.md, etc.)
+- Security sweep via git diff
+- Commit with message 'Add new branding graphics and integrate into site'
+- Push branch to origin
+
+### Benefits
+- Deploys new branding to live site
+- Enhances visual appeal with logos, icons, hero video
+- Maintains documentation in this log
+
+### Next Steps
+- User to run provided commands for commit/push
+- If needed, create PR to merge branding-refresh to main
+
+---
+## 2024-09-13 - Guiding User on Jekyll Installation for Local Development
+
+### Context
+User queried how to install Jekyll (typo: jeyyll) to make the website work, likely for local previewing of the s3rdv.com Jekyll site. Repository analysis shows:
+- Ruby 3.2.3 is installed.
+- Gemfile specifies Jekyll ~> 4.4.1 and plugins.
+- No global Jekyll/Bundler installed (based on gem list output).
+- Site is hosted on GitHub Pages, but local install needed for development.
+
+### Reasoning
+- Provided detailed, novice-friendly instructions without assuming expertise, using inclusive language.
+- Steps cover installing Bundler, running bundle install, and serving the site locally.
+- Emphasized that GitHub Pages handles production; this is for local testing.
+- Followed preferences: Single command block, absolute paths, verbose logging here.
+- No changes to codebase; pure guidance.
+
+### Guidance Provided
+- Install Bundler: sudo gem install bundler
+- Install dependencies: bundle install
+- Serve locally: bundle exec jekyll serve
+- Access at http://localhost:4000
+
+### Benefits
+- Enables local preview of changes before pushing to GitHub.
+- Helps verify new graphics integration.
+- Maintains documentation.
+
+---
+## 2024-09-13 - Troubleshooting Jekyll Installation Errors for Local Serve
+
+### Context
+User encountered errors during `bundle install` for local Jekyll setup:
+- Bundler version mismatch (lockfile for 2.5.23, running 2.4.20).
+- PermissionError writing to /var/lib/gems/3.2.0/cache (system directory requires sudo).
+- Failed to install rake and other gems, with suggestion to rerun `bundle install`.
+
+Repository is on Ubuntu with system Ruby 3.2.3.
+
+### Reasoning
+- Errors stem from system gem permissions and Bundler version.
+- Recommended local installation with --path vendor/bundle to avoid sudo and isolate gems.
+- If preferring system install, use sudo, but local is safer for projects.
+- After fix, retry serving.
+- Followed preferences: Novice-friendly explanations, single command block, absolute paths, verbose logging.
+
+### Guidance Provided
+- Option 1: Local install with bundle install --path vendor/bundle
+- Option 2: System install with sudo bundle install
+- Then serve with bundle exec jekyll serve (adjust for path if local)
+
+### Benefits
+- Resolves permission issues safely.
+- Enables local preview without system modifications.
+- Maintains documentation.
+
+---
+## 2024-09-13 - Alternative Hero Section for Improved Readability
+
+### Context
+User noted that overlay text in the hero section was not readable over the logo video. Proposed and applied an alternative: Remove overlay text, place it below the video, add a static hero logo image on top of the video for branding.
+
+### Reasoning
+- Original had text overlay with gradient background, but video content (logo) interfered with readability.
+- New version: Video as background, static logo image centered on top, text moved below for clear separation.
+- Adjusted CSS: Increased video brightness, added hero-logo styles for positioning and responsiveness.
+- Changes minimize visual clutter while preserving dynamic video element.
+
+### Changes Made to index.md
+- Removed hero-overlay div and its text content.
+- Added new hero-logo div with img tag for static logo.
+- Moved subtitle and description below the hero-media div.
+- Updated CSS: Removed overlay styles, adjusted video filter, added hero-logo CSS with absolute positioning and media queries.
+
+### Benefits
+- Improves text readability by separating from video.
+- Maintains branding with prominent static logo.
+- Responsive design preserved.
+
+### Next Steps
+- Preview locally with bundle exec jekyll serve.
+- If satisfied, commit and push.
+
+---
+
+## 2024-09-13 - Footer Updates: Twitter Handle and Copyright Name
+
+### Context
+User requested adding Twitter handle "@S3rdVentures" to page footer and updating copyright name to "South 3rd Ventures LLC". These changes enhance social media presence and correct legal entity branding.
+
+### Reasoning
+- Added Twitter link directly as "@S3rdVentures" instead of using site.twitter_username variable to ensure exact handle display.
+- Updated copyright from "{{ site.title }}" (S3RDV LLC) to "South 3rd Ventures LLC" for proper legal entity name.
+- Maintained existing footer structure and styling for consistency.
+- Removed conditional logic for Twitter since it's now always displayed.
+
+### Changes Made to _layouts/default.html
+- Line 67: Updated copyright text from "{{ site.title }}" to "South 3rd Ventures LLC"
+- Lines 69-77: Replaced conditional Twitter logic with direct link to "@S3rdVentures"
+- Maintained separator styling and target="_blank" for external link
+
+### Benefits
+- Correct legal entity name in copyright
+- Direct social media contact via Twitter handle
+- Consistent footer branding across all pages
+
+### Next Steps
+- Preview changes with bundle exec jekyll serve
+- Verify footer displays correctly on all pages
+- Commit and push when satisfied
+
+---
+
+## 2024-09-13 - X.com Profile Verbiage Creation for @S3rdVentures
+
+### Context
+User requested profile verbiage for their X.com page (@S3rdVentures). Based on website content analysis, created concise bio options that highlight core business focus, key metrics, and value proposition within X's character limits.
+
+### Reasoning
+- Analyzed site content to identify key differentiators: CatalystX validator, 100% performance, 2000+ miles connectivity
+- Created multiple bio options for different approaches (technical vs accessible)
+- Included relevant hashtags for discoverability
+- Suggested website link and location for profile completion
+- Followed preferences for clear, professional messaging without overly technical jargon
+
+### Bio Options Provided
+1. Technical focus with metrics
+2. Accessible business-focused version  
+3. Partnership-emphasized version
+4. Ultra-concise version for maximum impact
+
+### Profile Recommendations
+- Website: https://s3rdv.com
+- Location: Based on business operations
+- Pinned tweet suggestion for CatalystX validator promotion
+
+### Benefits
+- Professional X.com presence aligned with website branding
+- Clear value proposition for potential stakers and partners
+- Optimized for blockchain/crypto community discovery
+
+---
+
+## 2024-09-13 - Footer Link Update: Twitter to X
+
+### Context
+User requested changing the footer link to show "X" instead of "@S3rdVentures" while maintaining the link to the X account page. This reflects the platform rebrand from Twitter to X.
+
+### Reasoning
+- Updated link text from "@S3rdVentures" to simply "X" for cleaner, modern appearance
+- Changed URL from twitter.com to x.com to reflect platform rebrand
+- Maintains same functionality and target="_blank" for external link
+- Keeps consistent footer structure with Contact | GitHub | X format
+
+### Changes Made to _layouts/default.html
+- Line 74: Updated link text from "@S3rdVentures" to "X"
+- Line 74: Updated URL from "https://twitter.com/S3rdVentures" to "https://x.com/S3rdVentures"
+
+### Benefits
+- Modern, clean footer appearance
+- Reflects current platform branding (X vs Twitter)
+- Maintains direct link to social media presence
+- Consistent with platform's current naming convention
+
+### Next Steps
+- Preview changes with bundle exec jekyll serve
+- Verify footer displays correctly with new X link
+- Commit and push when satisfied
+
+---
