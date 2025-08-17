@@ -1,0 +1,2968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ Device Monitor - Real-time Network Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Dark theme with great contrasting colors */
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --bg-card: #1e1e2e;
+            --bg-hover: #2a2a3e;
+            
+            /* Vibrant accent colors */
+            --accent-primary: #00d4ff;
+            --accent-secondary: #ff6b35;
+            --accent-success: #00ff88;
+            --accent-warning: #ffaa00;
+            --accent-danger: #ff4757;
+            --accent-purple: #a855f7;
+            
+            /* Text colors */
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .version-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .beta-notice {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 8px 0;
+            text-align: center;
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .beta-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .beta-icon {
+            font-size: 1rem;
+        }
+
+        .beta-text {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .beta-details {
+            opacity: 0.9;
+            font-size: 0.8rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Device grid */
+        .devices-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .devices-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .devices-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .devices-count {
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Search Box Styles */
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: bold;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-clear:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        /* API Calls Section Styles */
+        .api-calls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .api-call-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .api-call-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .api-method {
+            display: inline-block;
+            background: var(--accent-success);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-endpoint {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .devices-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            max-height: 800px;
+            overflow-y: auto;
+            padding-right: 1rem;
+            /* Add horizontal scroll for wide table */
+            overflow-x: auto;
+            min-width: 100%;
+        }
+
+        .devices-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .devices-grid::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .devices-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        .devices-grid::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* Latency Grid (2x2) */
+        .latency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0.4rem;
+            min-width: 140px;
+            padding: 0.4rem;
+            flex: 1;
+        }
+
+        .latency-grid .latency-min,
+        .latency-grid .latency-max,
+        .latency-grid .latency-avg,
+        .latency-grid .latency-last {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.3rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-size: 0.65rem;
+            min-height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+        }
+
+        .latency-grid .info-label {
+            font-size: 0.6rem;
+            margin-bottom: 0.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .latency-grid .info-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Device card - Completely redone wide format */
+        .device-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            /* Auto-spacing columns to fill available space */
+            grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+            gap: 0.8rem;
+            align-items: center;
+            min-width: auto; /* Let it fit naturally */
+        }
+
+        .device-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-success);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .device-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .device-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .device-code {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            justify-content: center;
+        }
+
+        .status-online {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-success);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .status-offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .status-deviation {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .status-unknown {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .device-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            min-width: 80px;
+        }
+
+        .info-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Force Last and Deviation columns to be visible */
+        .latency-last {
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .deviation-symbol {
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .deviation-icon {
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .deviation-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .deviation-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .deviation-unit {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .deviation-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-stable {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-success);
+        }
+
+        .status-deviation {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+        }
+
+        .status-offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-danger);
+        }
+
+        /* Historical stats - Compact */
+        .historical-stats {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-number {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-label-small {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Trend indicator */
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .trend-up {
+            color: var(--accent-success);
+        }
+
+        .trend-down {
+            color: var(--accent-danger);
+        }
+
+        .trend-neutral {
+            color: var(--text-muted);
+        }
+
+        /* Smooth refresh animations */
+        .device-card.updating {
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .device-card.updated {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-tertiary);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tools Menu Styles */
+        .device-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 100px;
+            flex: 1;
+        }
+
+        .tools-menu {
+            position: relative;
+        }
+
+        .tools-button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .tools-button:hover {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Expand button */
+        .expand-button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .expand-button:hover {
+            background: var(--accent-purple);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: calc(90vh + 200px);
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            max-height: calc(90vh - 120px); /* Account for header */
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--accent-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-danger);
+            color: var(--bg-primary);
+        }
+
+
+
+        .device-info {
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .history-controls {
+            margin-bottom: 2rem;
+        }
+
+        .history-controls h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        .timeframe-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .timeframe-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .timeframe-btn:hover,
+        .timeframe-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .chart-container {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 700px;
+            position: relative;
+        }
+        
+        .chart-container canvas {
+            max-height: 100% !important;
+            width: 100% !important;
+        }
+
+        /* Collapsible section styles */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            color: var(--accent-primary);
+        }
+
+        .collapsible-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .collapsible-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+                .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 500px;
+        }
+        
+        .collapsible-header {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tools-dropdown {
+            position: fixed;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .tools-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tool-item {
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tool-item:last-child {
+            border-bottom: none;
+        }
+
+        .tool-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .tool-item.disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .tool-item.disabled:hover {
+            background: none;
+            color: var(--text-muted);
+        }
+
+        /* Error display */
+        .error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            color: var(--accent-danger);
+        }
+
+        .error h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-danger);
+        }
+
+        .error ul {
+            margin-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Refresh button */
+        .refresh-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .devices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .historical-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Fade in animation */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Agent Status Styles */
+        .agent-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .agent-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .agent-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .agent-info {
+            flex: 1;
+        }
+
+        .agent-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .agent-location {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .agent-status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .agent-status-badge.online {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-success);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .agent-status-badge.offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .agent-status-badge.connecting {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--accent-warning);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .agent-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .agent-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .agent-stat .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .agent-stat .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Data Source Toggle Styles */
+        .data-source-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0 1rem;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toggle-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .toggle-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        /* Source toggle buttons */
+        .source-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+            margin-left: 8px;
+        }
+        
+        .source-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        
+        .source-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .source-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .source-location {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        /* Chart Legend Styles */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-online {
+            background: rgba(0, 255, 136, 0.8);
+        }
+
+        .legend-offline {
+            background: rgba(255, 71, 87, 0.8);
+        }
+
+        .legend-line {
+            background: rgba(0, 212, 255, 1);
+        }
+
+        /* Chart Statistics Styles */
+        .chart-stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .chart-stats-layer {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-stats-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .chart-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .chart-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .chart-stat-label {
+            color: var(--text-muted);
+        }
+
+        .chart-stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Agent ASN Styles */
+        .agent-asn {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .agent-asn .agent-stat {
+            font-size: 0.75rem;
+        }
+
+        .agent-asn .stat-value {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <!-- Beta Notice -->
+    <div class="beta-notice">
+        <div class="beta-content">
+            <span class="beta-icon">🚧</span>
+            <span class="beta-text">BETA - Under Construction</span>
+            <span class="beta-details">This monitoring tool is in active development</span>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🔗</div>
+                <span>DZ Device Monitor</span>
+                <span class="version-badge">v1.1.0</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="serviceStatus">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Search Box -->
+        <div class="search-container fade-in">
+            <div class="search-wrapper">
+                <input type="text" id="searchBox" placeholder="Search devices by name, location, type, IP, or ASN..." class="search-input">
+                <div class="search-clear" id="searchClear" style="display: none;">×</div>
+            </div>
+        </div>
+        
+
+
+        <!-- Devices Container -->
+        <div class="devices-container fade-in">
+            <div class="devices-header">
+                <div>
+                    <h2 class="devices-title">Network Devices</h2>
+                    <div class="devices-count" id="deviceCount">0 devices</div>
+                </div>
+                <div class="data-source-toggle">
+                    <label class="toggle-label">Monitoring Source:</label>
+                    <div id="source-toggle" class="toggle-buttons">
+                        <!-- Source buttons will be populated dynamically -->
+                    </div>
+                </div>
+                <button class="refresh-btn" onclick="fetchData()">
+                    <span>🔄</span>
+                    Refresh Data
+                </button>
+            </div>
+            
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+            </div>
+            
+            <div id="error" class="error" style="display: none;">
+                <h3>⚠️ Connection Error</h3>
+                <p>Unable to connect to monitoring service. This may be due to:</p>
+                <ul>
+                    <li>DZ Device Monitor service not running on the server</li>
+                    <li>Caddy proxy not running or misconfigured on the server</li>
+                    <li>Network/DNS issues with api.s3rdv.com</li>
+                    <li>Firewall blocking ports 80/443</li>
+                    <li>Let's Encrypt certificate issuance failure (check Caddy logs)</li>
+                </ul>
+                <p><strong>Check the browser console for detailed error information.</strong></p>
+                <p><strong>Note:</strong> The dashboard uses HTTPS via Caddy proxy on api.s3rdv.com.</p>
+            </div>
+            
+            <div id="devicesGrid" class="devices-grid" style="display: none;"></div>
+        </div>
+
+        <!-- Monitoring Stats -->
+        <div class="devices-container fade-in">
+            <div class="collapsible-header" onclick="toggleMonitoringStats()">
+                <h2 class="devices-title" style="margin: 0; font-size: 1.3rem;">
+                    📊 Monitoring Statistics
+                </h2>
+                <span class="collapsible-icon" id="monitoringStatsIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="monitoringStatsContent">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDevices">-</div>
+                        <div class="stat-label">Total Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="onlineDevices">-</div>
+                        <div class="stat-label">Online Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalObservations">-</div>
+                        <div class="stat-label">Total Observations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="firstData">-</div>
+                        <div class="stat-label">First Data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Status -->
+        <div class="devices-container fade-in">
+            <div class="collapsible-header" onclick="toggleAgentStatus()">
+                <h2 class="devices-title" style="margin: 0; font-size: 1.3rem;">
+                    🤖 Agent Status
+                </h2>
+                <span class="collapsible-icon" id="agentStatusIcon">▼</span>
+            </div>
+            <div class="collapsible-content" id="agentStatusContent">
+                <div class="agent-status-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-icon">🖥️</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Main Monitor</div>
+                                <div class="agent-location">Central Server</div>
+                            </div>
+                            <div class="agent-status-badge online">Online</div>
+                        </div>
+                        <div class="agent-details">
+                            <div class="agent-stat">
+                                <span class="stat-label">Devices:</span>
+                                <span class="stat-value" id="mainMonitorDevices">-</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="stat-label">Last Update:</span>
+                                <span class="stat-value" id="mainMonitorLastUpdate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-icon">🇱🇹</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Lithuania-01</div>
+                                <div class="agent-location">Lithuania</div>
+                            </div>
+                            <div class="agent-status-badge" id="lithuaniaAgentStatus">Connecting...</div>
+                        </div>
+                        <div class="agent-details">
+                            <div class="agent-stat">
+                                <span class="stat-label">Devices:</span>
+                                <span class="stat-value" id="lithuaniaAgentDevices">-</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="stat-label">Last Update:</span>
+                                <span class="stat-value" id="lithuaniaAgentLastUpdate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Documentation Link -->
+        <div class="devices-container fade-in">
+            <div style="text-align: center; padding: 1rem;">
+                <h2 class="devices-title" style="margin-bottom: 0.5rem;">API Documentation</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 1rem;">
+                    Access the complete API documentation with examples, data structures, and integration guides.
+                </p>
+                <a href="https://s3rdv.com/docs" target="_blank" style="
+                    display: inline-block;
+                    background: var(--gradient-primary);
+                    color: white;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 12px;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+                    box-shadow: var(--shadow-md);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
+                    📚 View API Documentation
+                </a>
+            </div>
+        </div>
+        </div>
+
+    <!-- Device Detail Modal -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalDeviceName">Device Details</h2>
+                <button class="modal-close" onclick="closeDeviceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="device-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                    <div class="info-row">
+                        <span class="info-label">Device Code:</span>
+                        <span id="modalDeviceCode">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Location:</span>
+                        <span id="modalDeviceLocation">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Type:</span>
+                        <span id="modalDeviceType">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">IP Address:</span>
+                        <span id="modalDeviceIP">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ASN:</span>
+                        <span id="modalDeviceASN">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Current Latency:</span>
+                        <span id="modalDeviceLatency">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Earliest Observed:</span>
+                        <span id="modalDeviceEarliest">-</span>
+                    </div>
+                </div>
+                
+                <div class="history-controls">
+                    <h3>Latency History</h3>
+                    <div class="timeframe-buttons">
+                        <button class="timeframe-btn active" onclick="changeTimeframe('25h')">25 Hours</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('7d')">7 Days</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('30d')">30 Days</button>
+                        <button class="timeframe-btn" onclick="changeTimeframe('all')">All History</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="latencyChart"></canvas>
+                </div>
+                
+                <!-- Chart Legend -->
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-line"></div>
+                        <span>Latency Line</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-online"></div>
+                        <span>Online Status</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-offline"></div>
+                        <span>Offline Status</span>
+                    </div>
+                </div>
+                
+                <!-- Chart Statistics - Two Layers -->
+                <div class="chart-stats-container">
+                    <div class="chart-stats-layer">
+                        <div class="chart-stats-title">Current Timeframe Stats</div>
+                        <div class="chart-stats-grid">
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Min:</span>
+                                <span class="chart-stat-value" id="chartMin">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Max:</span>
+                                <span class="chart-stat-value" id="chartMax">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Avg:</span>
+                                <span class="chart-stat-value" id="chartAvg">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Points:</span>
+                                <span class="chart-stat-value" id="chartPoints">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-stats-layer">
+                        <div class="chart-stats-title">Overall Device Stats</div>
+                        <div class="chart-stats-grid">
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">Total Obs:</span>
+                                <span class="chart-stat-value" id="chartTotalObs">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Min:</span>
+                                <span class="chart-stat-value" id="chart24hMin">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Max:</span>
+                                <span class="chart-stat-value" id="chart24hMax">-</span>
+                            </div>
+                            <div class="chart-stat-item">
+                                <span class="chart-stat-label">24h Avg:</span>
+                                <span class="chart-stat-value" id="chart24hAvg">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Last updated: <span id="lastUpdated">-</span></p>
+                        <p>DZ Device Monitor v1.0.42</p>
+        <p>&copy; 2025 S3RDV LLC</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://api.s3rdv.com';
+        
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+        const DASHBOARD_VERSION = '1.1.0'; // Dashboard version
+        let currentSource = 'main'; // Default to main source
+        let availableSources = []; // Will be populated from API
+        let refreshTimer = null;
+        let chartData = {}; // Store chart data per device per source
+
+        // Initialize the dashboard
+        async function initDashboard() {
+            await loadSources();
+            await loadDevices();
+            setupRefreshTimer();
+            setupSourceToggle();
+        }
+
+        // Load available monitoring sources
+        async function loadSources() {
+            try {
+                const response = await fetch(`${API_BASE}/api/sources`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    availableSources = data.data;
+                    updateSourceToggle();
+                }
+            } catch (error) {
+                console.error('Failed to load sources:', error);
+            }
+        }
+
+        // Update source toggle UI
+        function updateSourceToggle() {
+            const sourceToggle = document.getElementById('source-toggle');
+            if (!sourceToggle) return;
+
+            sourceToggle.innerHTML = '';
+            
+            availableSources.forEach(source => {
+                const button = document.createElement('button');
+                button.className = `source-btn ${source.id === currentSource ? 'active' : ''}`;
+                button.onclick = () => switchSource(source.id);
+                
+                const city = source.city || source.location || 'Unknown';
+                const asn = source.asn_name ? `(${source.asn_name})` : '';
+                
+                button.innerHTML = `
+                    <span class="source-name">${source.name}</span>
+                    <span class="source-location">${city} ${asn}</span>
+                `;
+                
+                sourceToggle.appendChild(button);
+            });
+        }
+
+        // Switch between monitoring sources
+        async function switchSource(sourceId) {
+            currentSource = sourceId;
+            updateSourceToggle();
+            await loadDevices();
+        }
+
+        // Setup source toggle event listeners
+        function setupSourceToggle() {
+            // Already handled in updateSourceToggle()
+        }
+
+        let devices = [];
+        let stats = {};
+        let health = {};
+        let latencyChart = null;
+        let currentDataSource = 'all'; // Track current data source filter
+        let monitoringSources = []; // Store monitoring sources information
+        
+        // Collapsible functionality
+        function toggleMonitoringStats() {
+            const content = document.getElementById('monitoringStatsContent');
+            const icon = document.getElementById('monitoringStatsIcon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+
+        // Agent status toggle functionality
+        function toggleAgentStatus() {
+            const content = document.getElementById('agentStatusContent');
+            const icon = document.getElementById('agentStatusIcon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+
+        // Update agent status information
+        function updateAgentStatus(devices) {
+            // Count devices by agent
+            const agentCounts = {};
+            const agentLastUpdates = {};
+            const agentDevices = {};
+            
+            devices.forEach(device => {
+                const agentId = device.agent_id || 'main';
+                agentCounts[agentId] = (agentCounts[agentId] || 0) + 1;
+                agentLastUpdates[agentId] = device.received_at || new Date().toISOString();
+                
+                // Track unique devices per agent
+                if (!agentDevices[agentId]) {
+                    agentDevices[agentId] = new Set();
+                }
+                agentDevices[agentId].add(device.pubkey);
+            });
+            
+            // Update main monitor stats (devices without agent_id)
+            const mainDevices = devices.filter(d => !d.agent_id).length;
+            document.getElementById('mainMonitorDevices').textContent = mainDevices;
+            document.getElementById('mainMonitorLastUpdate').textContent = 
+                agentLastUpdates['main'] ? new Date(agentLastUpdates['main']).toLocaleTimeString() : '-';
+            
+            // Update Lithuania agent stats
+            const lithuaniaDevices = agentDevices['lithuania-01'] ? agentDevices['lithuania-01'].size : 0;
+            document.getElementById('lithuaniaAgentDevices').textContent = lithuaniaDevices;
+            document.getElementById('lithuaniaAgentLastUpdate').textContent = 
+                agentLastUpdates['lithuania-01'] ? new Date(agentLastUpdates['lithuania-01']).toLocaleTimeString() : '-';
+            
+            // Update Lithuania agent status
+            const lithuaniaStatus = document.getElementById('lithuaniaAgentStatus');
+            if (lithuaniaDevices > 0) {
+                lithuaniaStatus.textContent = 'Online';
+                lithuaniaStatus.className = 'agent-status-badge online';
+            } else {
+                lithuaniaStatus.textContent = 'Offline';
+                lithuaniaStatus.className = 'agent-status-badge offline';
+            }
+            
+            // Update monitoring source ASN information
+            updateMonitoringSourceASN();
+        }
+        
+        // Update monitoring source ASN information
+        function updateMonitoringSourceASN() {
+            // Find main monitor source
+            const mainSource = monitoringSources.find(s => s.id === 'main');
+            if (mainSource && mainSource.asn) {
+                const mainMonitorCard = document.querySelector('.agent-card:first-child');
+                if (mainMonitorCard) {
+                    let asnInfo = mainMonitorCard.querySelector('.agent-asn');
+                    if (!asnInfo) {
+                        asnInfo = document.createElement('div');
+                        asnInfo.className = 'agent-asn';
+                        mainMonitorCard.querySelector('.agent-details').appendChild(asnInfo);
+                    }
+                    asnInfo.innerHTML = `
+                        <div class="agent-stat">
+                            <span class="stat-label">ASN:</span>
+                            <span class="stat-value">${mainSource.asn} (${mainSource.asn_name || 'Unknown'})</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Find Lithuania agent source
+            const lithuaniaSource = monitoringSources.find(s => s.id === 'lithuania-01');
+            if (lithuaniaSource && lithuaniaSource.asn) {
+                const lithuaniaCard = document.querySelector('.agent-card:last-child');
+                if (lithuaniaCard) {
+                    let asnInfo = lithuaniaCard.querySelector('.agent-asn');
+                    if (!asnInfo) {
+                        asnInfo = document.createElement('div');
+                        asnInfo.className = 'agent-asn';
+                        lithuaniaCard.querySelector('.agent-details').appendChild(asnInfo);
+                    }
+                    asnInfo.innerHTML = `
+                        <div class="agent-stat">
+                            <span class="stat-label">ASN:</span>
+                            <span class="stat-value">${lithuaniaSource.asn} (${lithuaniaSource.asn_name || 'Unknown'})</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Format uptime
+        function formatUptime(seconds) {
+            if (!seconds) return '-';
+            
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        // Format device name
+        function formatDeviceName(name) {
+            if (!name) return 'Unknown';
+            
+            // If it's already a readable code like "fra-dz-001-x", return as is
+            if (name.includes('-')) {
+                return name;
+            }
+            
+            // For pubkeys, format them more readably
+            if (name.length > 8) {
+                return name.substring(0, 8);
+            }
+            
+            return name;
+        }
+
+        // Get latency color
+        function getLatencyColor(latency) {
+            if (!latency) return 'var(--text-muted)';
+            if (latency < 50) return 'var(--accent-success)';
+            if (latency < 100) return 'var(--accent-primary)';
+            if (latency < 200) return 'var(--accent-warning)';
+            return 'var(--accent-danger)';
+        }
+
+        // Get "Last" measurement color based on deviation from average
+        function getLastMeasurementColor(device) {
+            if (!device.latency || device.latency === null) return 'var(--text-muted)';
+            
+            // Compare against average
+            if (device.historical_stats && device.historical_stats.avg) {
+                const deviation = device.latency - device.historical_stats.avg;
+                
+                if (deviation <= 2) {
+                    return 'var(--accent-success)'; // Green: within 2ms of average
+                } else if (deviation <= 5) {
+                    return 'var(--accent-warning)'; // Orange: 2-5ms higher than average
+                } else {
+                    return 'var(--accent-danger)'; // Red: >5ms higher than average
+                }
+            }
+            
+            // Fallback to green if no historical data
+            return 'var(--accent-success)';
+        }
+
+        // Get "Last" measurement tooltip
+        function getLastMeasurementTooltip(device) {
+            if (!device.latency || device.latency === null) {
+                return 'No latency data available';
+            }
+            
+            // Compare against average
+            if (device.historical_stats && device.historical_stats.avg) {
+                const deviation = device.latency - device.historical_stats.avg;
+                
+                if (deviation <= 2) {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: Within 2ms of average (Green)`;
+                } else if (deviation <= 5) {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: 2-5ms higher than average (Orange)`;
+                } else {
+                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: >5ms higher than average (Red)`;
+                }
+            }
+            
+            return `Current: ${device.latency}ms`;
+        }
+
+        // Get Min/Max/Average tooltip
+        function getStatsTooltip(device, statType) {
+            if (!device.historical_stats) {
+                return 'No historical data available';
+            }
+            
+            const timeframe = 'Last 24 hours';
+            const observations = device.historical_stats.observations24h || 0;
+            
+            switch(statType) {
+                case 'min':
+                    return `Minimum: ${device.historical_stats.min}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                case 'max':
+                    return `Maximum: ${device.historical_stats.max}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                case 'avg':
+                    return `Average: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                default:
+                    return `Timeframe: ${timeframe}\nObservations: ${observations}`;
+            }
+        }
+
+        // Get trend tooltip
+        function getTrendTooltip(device) {
+            if (!device.historical_stats || device.historical_stats.trend === 0) {
+                return 'No significant trend detected\nTimeframe: Last 20 observations (10 minutes)';
+            }
+            
+            const trend = device.historical_stats.trend;
+            const direction = trend > 0 ? 'increasing' : 'decreasing';
+            const timeframe = 'Last 20 observations (10 minutes)';
+            
+            return `Trend: ${Math.abs(trend)}% ${direction}\nTimeframe: ${timeframe}\nRecent vs Previous 10 observations`;
+        }
+
+        // Get deviation symbol showing greatest observed deviation from average
+        function getDeviationSymbol(device) {
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                return '❌ Offline';
+            }
+            
+            // Show greatest observed deviation from average over last 2880 measurements
+            if (device.historical_stats && device.historical_stats.maxDeviation !== undefined) {
+                const maxDeviation = device.historical_stats.maxDeviation;
+                
+                if (maxDeviation > 0.1) {
+                    return `📈 ${maxDeviation.toFixed(1)}ms`;
+                }
+            }
+            
+            return '✅ Stable';
+        }
+
+        // Get deviation tooltip text
+        function getDeviationTooltip(device) {
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                return 'Device is unreachable or offline';
+            }
+            
+            if (device.historical_stats && device.historical_stats.maxDeviation !== undefined) {
+                const maxDeviation = device.historical_stats.maxDeviation;
+                
+                if (maxDeviation > 0.1) {
+                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 2880 observations (24 hours)`;
+                }
+            }
+            
+            return 'Latency is stable (greatest deviation < 0.1ms from average)';
+        }
+
+        // Get status class based on reachability
+        function getStatusClass(status, latency, historicalStats) {
+            if (status === 'Unreachable' || status === 'offline') return 'status-offline';
+            if (status === 'unknown') return 'status-unknown';
+            
+            // Always return online for reachable devices (no yellow status)
+            return 'status-online';
+        }
+
+        // Get deviation status based on reachability and deviation
+        function getDeviationStatus(latency, historicalStats) {
+            if (latency === null) return 'Unknown';
+            
+            // Check for significant deviation (more than 20% change)
+            if (historicalStats && Math.abs(historicalStats.trend) > 20) {
+                return 'Deviation';
+            }
+            
+            return 'Stable';
+        }
+
+        // Calculate deviation score for sorting
+        function getDeviationScore(device) {
+            let score = 0;
+            
+            // Offline devices get highest priority
+            if (device.latency_status === 'Unreachable' || device.latency_status === 'offline') {
+                score += 1000;
+            }
+            
+            // Add deviation score based on trend
+            if (device.historical_stats && device.historical_stats.trend !== 0) {
+                score += Math.abs(device.historical_stats.trend) * 10;
+            }
+            
+            // Add score based on number of observations (more data = more reliable)
+            if (device.history_count) {
+                score += device.history_count;
+            }
+            
+            // Add small score based on latency (higher latency = slightly higher priority)
+            if (device.latency && device.latency > 0) {
+                score += device.latency / 100; // Small factor to differentiate
+            }
+            
+            return score;
+        }
+
+        // Sort devices by deviation score (highest first)
+        function sortDevicesByDeviation(devices) {
+            return devices.sort((a, b) => {
+                const scoreA = getDeviationScore(a);
+                const scoreB = getDeviationScore(b);
+                return scoreB - scoreA; // Highest score first
+            });
+        }
+
+        // Update individual device card without full refresh
+        function updateDeviceCard(deviceId, newData) {
+            const existingCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+            if (!existingCard) return;
+            
+            // Add updating class for smooth transition
+            existingCard.classList.add('updating');
+            
+            // Update specific elements
+            const deviationElement = existingCard.querySelector('.deviation-icon');
+            const statusElement = existingCard.querySelector('.device-status');
+            const minElement = existingCard.querySelector('.latency-min .info-value');
+            const maxElement = existingCard.querySelector('.latency-max .info-value');
+            const avgElement = existingCard.querySelector('.latency-avg .info-value');
+            const lastElement = existingCard.querySelector('.latency-last .info-value');
+            
+            if (deviationElement) {
+                deviationElement.innerHTML = getDeviationSymbol(newData);
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = newData.latency_status || 'Unknown';
+                statusElement.className = `device-status ${getStatusClass(newData.latency_status, newData.latency, newData.historical_stats)}`;
+            }
+            
+            if (minElement && newData.historical_stats) {
+                minElement.textContent = `${newData.historical_stats.min || '-'} ms`;
+            }
+            
+            if (maxElement && newData.historical_stats) {
+                maxElement.textContent = `${newData.historical_stats.max || '-'} ms`;
+            }
+            
+            if (avgElement && newData.historical_stats) {
+                avgElement.textContent = `${newData.historical_stats.avg || '-'} ms`;
+            }
+            
+            if (lastElement) {
+                lastElement.textContent = `${newData.latency !== null ? newData.latency : '-'} ms`;
+                lastElement.style.color = getLastMeasurementColor(newData);
+            }
+            
+            // Remove updating class and add updated class
+            setTimeout(() => {
+                existingCard.classList.remove('updating');
+                existingCard.classList.add('updated');
+                setTimeout(() => existingCard.classList.remove('updated'), 300);
+            }, 200);
+        }
+
+        // Create historical stats HTML
+        function createHistoricalStatsHTML(historicalStats) {
+            const trendIndicator = getTrendIndicator(historicalStats.trend);
+            return `
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.min || '-'}</div>
+                    <div class="stat-label-small">Min</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.max || '-'}</div>
+                    <div class="stat-label-small">Max</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${historicalStats.avg || '-'}</div>
+                    <div class="stat-label-small">Avg</div>
+                </div>
+                <div class="trend-indicator">
+                    ${trendIndicator}
+                </div>
+            `;
+        }
+
+        // Create device card - Completely redone with Tools first
+        function createDeviceCard(device) {
+            const latencyColor = getLatencyColor(device.latency);
+            const lastMeasurementColor = getLastMeasurementColor(device);
+            const deviationStatus = getDeviationStatus(device.latency, device.historical_stats);
+            const statusClass = getStatusClass(device.latency_status, device.latency, device.historical_stats);
+            
+            const historicalStats = device.historical_stats;
+            
+            // Determine agent information
+            const agentInfo = device.agent_id ? 
+                `<div class="agent-badge" style="background: var(--accent-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px;" title="Agent: ${device.agent_id} (${device.agent_location || 'Unknown'})">
+                    ${device.agent_id}
+                </div>` : '';
+            
+            // Add source indicator if device has agent data
+            const sourceIndicator = device.source === 'agent' ? 
+                `<div style="font-size: 0.6rem; color: var(--accent-purple); margin-top: 2px;">via ${device.agent_id}</div>` : '';
+            
+            return `
+                <div class="device-card fade-in" data-device-id="${device.pubkey}">
+                    <!-- DEVICE INFO -->
+                    <div class="device-info">
+                        <div class="info-label">Device</div>
+                        <div class="device-name" style="display: flex; align-items: center;">
+                            ${formatDeviceName(device.display_name)}
+                            ${agentInfo}
+                        </div>
+                        ${sourceIndicator}
+                    </div>
+                    
+                    <!-- LOCATION -->
+                    <div class="device-info">
+                        <div class="info-label">Location</div>
+                        <div class="info-value">${device.location || 'Unknown'}</div>
+                    </div>
+                    
+                    <!-- TYPE -->
+                    <div class="device-info">
+                        <div class="info-label">Type</div>
+                        <div class="info-value">${device.type || 'Unknown'}</div>
+                    </div>
+                    
+                    <!-- IP ADDRESS -->
+                    <div class="device-info">
+                        <div class="info-label">IP Address</div>
+                        <div class="info-value">${device.public_ip || 'Unknown'}</div>
+                    </div>
+                    
+                    <!-- ASN INFO -->
+                    <div class="device-info">
+                        <div class="info-label">ASN</div>
+                        <div class="info-value">${device.asn ? `AS${device.asn}` : 'Unknown'}</div>
+                        ${device.asn_name ? `<div class="info-value" style="font-size: 0.7rem; color: var(--text-muted); word-wrap: break-word; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${device.asn_name}">${device.asn_name.length > 15 ? device.asn_name.substring(0, 15) + '...' : device.asn_name}</div>` : ''}
+                    </div>
+                    
+                    <!-- STATUS -->
+                    <div class="device-status ${statusClass}">
+                        <span title="🟢 Green: Device is reachable and responding&#10;🔴 Red: Device is unreachable or offline&#10;Threshold: Device must respond within 30 seconds">
+                            ${device.latency_status || 'Unknown'}
+                        </span>
+                    </div>
+                    
+                    <!-- LATENCY GRID (2x2) -->
+                    <div class="latency-grid">
+                        <div class="latency-min">
+                            <div class="info-label">Min</div>
+                            <div class="info-value" title="${getStatsTooltip(device, 'min')}">
+                                ${historicalStats && historicalStats.min ? historicalStats.min : '-'}ms
+                            </div>
+                        </div>
+                        <div class="latency-max">
+                            <div class="info-label">Max</div>
+                            <div class="info-value" title="${getStatsTooltip(device, 'max')}">
+                                ${historicalStats && historicalStats.max ? historicalStats.max : '-'}ms
+                            </div>
+                        </div>
+                        <div class="latency-last">
+                            <div class="info-label">Last</div>
+                            <div class="info-value" style="color: ${lastMeasurementColor}" 
+                                 title="${getLastMeasurementTooltip(device)}">
+                                ${device.latency !== null ? device.latency : '-'}ms
+                            </div>
+                        </div>
+                        <div class="latency-avg">
+                            <div class="info-label">Avg</div>
+                            <div class="info-value" title="${getStatsTooltip(device, 'avg')}">
+                                ${historicalStats && historicalStats.avg ? historicalStats.avg : '-'}ms
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DEVIATION -->
+                    <div class="deviation-symbol">
+                        <div class="info-label">24hr Deviation</div>
+                        <div class="deviation-icon" style="font-size: 1rem; text-align: center;" 
+                             title="${getDeviationTooltip(device)}">
+                            ${getDeviationSymbol(device)}
+                        </div>
+                    </div>
+                    
+                    <!-- TOOLS COLUMN LAST -->
+                    <div class="device-tools">
+                        <div class="info-label">Tools</div>
+                        <div class="tools-menu">
+                            <button class="tools-button" onclick="openToolsMenu('${device.pubkey}', '${device.public_ip}', '${device.asn || ''}')">
+                                Tools
+                            </button>
+                            <button class="expand-button" onclick="expandDevice('${device.pubkey}')" title="View detailed history">
+                                📊
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update device list with smooth refresh
+        function updateDeviceList() {
+            // Use the new filtering system
+            filterDevicesBySource();
+        }
+
+        // Modal functionality
+        let currentDevice = null;
+        let currentTimeframe = '25h';
+
+        function expandDevice(deviceId) {
+            const device = devices.find(d => d.pubkey === deviceId);
+            if (!device) return;
+            
+            currentDevice = device;
+            showDeviceModal(device);
+        }
+
+        function showDeviceModal(device) {
+            // Populate modal with device info
+            document.getElementById('modalDeviceName').textContent = device.display_name || device.name;
+            document.getElementById('modalDeviceCode').textContent = device.code || 'N/A';
+            document.getElementById('modalDeviceLocation').textContent = device.location || 'N/A';
+            document.getElementById('modalDeviceType').textContent = device.type || 'N/A';
+            document.getElementById('modalDeviceIP').textContent = device.public_ip || 'N/A';
+            document.getElementById('modalDeviceASN').textContent = device.asn ? `${device.asn} (${device.asn_name || 'Unknown'})` : 'N/A';
+            document.getElementById('modalDeviceLatency').textContent = device.latency ? `${device.latency}ms` : 'N/A';
+            
+            // Add monitoring source ASN information if device comes from an agent
+            if (device.agent_id) {
+                const sourceASN = monitoringSources.find(s => s.id === device.agent_id);
+                if (sourceASN && sourceASN.asn) {
+                    // Add monitoring source ASN to the modal
+                    const modalBody = document.querySelector('.modal-body');
+                    let sourceInfo = modalBody.querySelector('.monitoring-source-info');
+                    if (!sourceInfo) {
+                        sourceInfo = document.createElement('div');
+                        sourceInfo.className = 'monitoring-source-info';
+                        sourceInfo.style.cssText = 'margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);';
+                        modalBody.insertBefore(sourceInfo, modalBody.querySelector('.history-controls'));
+                    }
+                    sourceInfo.innerHTML = `
+                        <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">📡 Monitoring Source</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                            <div>
+                                <span style="color: var(--text-muted);">Agent:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.agent_id}</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Location:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.agent_location}</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Source ASN:</span>
+                                <span style="color: var(--accent-purple); font-weight: 600;">${sourceASN.asn} (${sourceASN.asn_name || 'Unknown'})</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted);">Received:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${device.received_at ? new Date(device.received_at).toLocaleString() : 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Remove monitoring source info if device is from main monitor
+                const sourceInfo = document.querySelector('.monitoring-source-info');
+                if (sourceInfo) {
+                    sourceInfo.remove();
+                }
+            }
+            
+            // Load earliest observed date
+            loadEarliestObserved(device.pubkey);
+            
+            // Show modal
+            document.getElementById('deviceModal').style.display = 'block';
+            
+            // Load chart data
+            loadChartData();
+        }
+
+        function closeDeviceModal() {
+            document.getElementById('deviceModal').style.display = 'none';
+            currentDevice = null;
+        }
+
+        async function loadEarliestObserved(deviceId) {
+            try {
+                // Fetch all history data for the device
+                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all`);
+                const data = await response.json();
+                
+                if (data.success && data.data.history && data.data.history.length > 0) {
+                    // Find the earliest timestamp
+                    const earliest = data.data.history.reduce((earliest, observation) => {
+                        const timestamp = new Date(observation.timestamp);
+                        return timestamp < earliest ? timestamp : earliest;
+                    }, new Date(data.data.history[0].timestamp));
+                    
+                    // Format the date
+                    const formattedDate = earliest.toLocaleDateString() + ' ' + earliest.toLocaleTimeString();
+                    document.getElementById('modalDeviceEarliest').textContent = formattedDate;
+                } else {
+                    document.getElementById('modalDeviceEarliest').textContent = 'No data available';
+                }
+            } catch (error) {
+                console.error('Error loading earliest observed date:', error);
+                document.getElementById('modalDeviceEarliest').textContent = 'Error loading data';
+            }
+        }
+
+        function changeTimeframe(timeframe) {
+            currentTimeframe = timeframe;
+            
+            // Update button states
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload chart
+            loadChartData();
+        }
+
+        async function loadChartData() {
+            if (!currentDevice) return;
+            
+            const chartContainer = document.querySelector('.chart-container');
+            
+            // Show loading state
+            chartContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <div style="width: 40px; height: 40px; border: 3px solid var(--accent-primary); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                    <h3>Loading Chart Data...</h3>
+                    <p>Fetching ${currentTimeframe} of latency history...</p>
+                </div>
+            `;
+            
+            try {
+                // Fetch chart data from API
+                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${currentTimeframe}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load chart data');
+                }
+                
+                // Create chart
+                createLatencyChart(data.data);
+                
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+                chartContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--accent-danger);">
+                        <h3>❌ Chart Error</h3>
+                        <p>Failed to load latency history data.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function createLatencyChart(chartData) {
+            const chartContainer = document.querySelector('.chart-container');
+            chartContainer.innerHTML = '<canvas id="latencyChart" style="width: 100%; height: 100%;"></canvas>';
+            
+            const ctx = document.getElementById('latencyChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (latencyChart) {
+                latencyChart.destroy();
+            }
+            
+            // Prepare data for Chart.js
+            const labels = chartData.history.map(h => {
+                const date = new Date(h.timestamp);
+                return date.toLocaleTimeString();
+            });
+            
+            const latencies = chartData.history.map(h => h.latency).filter(l => l !== null && l !== undefined);
+            const statuses = chartData.history.map(h => h.latency_status);
+            
+            // Calculate intelligent Y-axis scaling
+            if (latencies.length === 0) {
+                // No valid latency data
+                chartContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <h3>📊 No Data Available</h3>
+                        <p>No valid latency data found for the selected timeframe.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const minLatency = Math.min(...latencies);
+            const maxLatency = Math.max(...latencies);
+            const latencyRange = maxLatency - minLatency;
+            
+            // Determine Y-axis bounds with smart padding
+            let yMin, yMax;
+            if (latencyRange === 0) {
+                // No variation - use fixed range around the single value
+                yMin = Math.max(0, minLatency - 5);
+                yMax = maxLatency + 5;
+            } else if (latencyRange < 5) {
+                // Very small range - use fixed padding
+                yMin = Math.max(0, minLatency - 2);
+                yMax = maxLatency + 2;
+            } else if (latencyRange < 20) {
+                // Small range - use 20% padding
+                yMin = Math.max(0, minLatency - (latencyRange * 0.2));
+                yMax = maxLatency + (latencyRange * 0.2);
+            } else {
+                // Larger range - use 10% padding
+                yMin = Math.max(0, minLatency - (latencyRange * 0.1));
+                yMax = maxLatency + (latencyRange * 0.1);
+            }
+            
+            // Create color array based on status
+            const colors = statuses.map(status => 
+                status === 'online' ? 'rgba(0, 255, 136, 0.8)' : 'rgba(255, 71, 87, 0.8)'
+            );
+            
+            // Create the chart with finer markers
+            latencyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Latency (ms)',
+                        data: latencies,
+                        borderColor: 'rgba(0, 212, 255, 1)',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: colors,
+                        pointBorderColor: colors,
+                        pointRadius: 1.5, // Smaller dots
+                        pointHoverRadius: 4, // Smaller hover radius
+                        pointBorderWidth: 1,
+                        pointStyle: 'circle'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 20,
+                            bottom: 20
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `${currentDevice.display_name} - Latency History (${currentTimeframe})`,
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: false // Hide built-in legend since we have custom one
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: 'rgba(255, 255, 255, 1)',
+                            bodyColor: 'rgba(255, 255, 255, 0.9)',
+                            borderColor: 'rgba(0, 212, 255, 0.5)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const status = statuses[context.dataIndex];
+                                    return `Latency: ${context.parsed.y}ms (${status})`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                maxTicksLimit: 10
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Latency (ms)',
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            // Intelligent scaling based on data range
+                            beginAtZero: false,
+                            min: yMin,
+                            max: yMax,
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                callback: function(value) {
+                                    return value + 'ms';
+                                },
+                                // Adaptive tick count based on data range
+                                maxTicksLimit: function() {
+                                    if (latencyRange === 0) return 3;
+                                    if (latencyRange < 5) return 4;
+                                    if (latencyRange < 20) return 5;
+                                    if (latencyRange < 50) return 6;
+                                    if (latencyRange < 100) return 8;
+                                    return 10;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+            
+            // Populate chart statistics
+            const stats = chartData.stats;
+            if (stats) {
+                // Current timeframe stats
+                document.getElementById('chartMin').textContent = stats.min ? `${stats.min.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartMax').textContent = stats.max ? `${stats.max.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartAvg').textContent = stats.avg ? `${stats.avg.toFixed(1)}ms` : 'N/A';
+                document.getElementById('chartPoints').textContent = stats.count || 'N/A';
+                
+                // Overall device stats (from device historical_stats)
+                if (currentDevice.historical_stats) {
+                    const deviceStats = currentDevice.historical_stats;
+                    document.getElementById('chartTotalObs').textContent = deviceStats.observations || 'N/A';
+                    document.getElementById('chart24hMin').textContent = deviceStats.min ? `${deviceStats.min.toFixed(1)}ms` : 'N/A';
+                    document.getElementById('chart24hMax').textContent = deviceStats.max ? `${deviceStats.max.toFixed(1)}ms` : 'N/A';
+                    document.getElementById('chart24hAvg').textContent = deviceStats.avg ? `${deviceStats.avg.toFixed(1)}ms` : 'N/A';
+                } else {
+                    document.getElementById('chartTotalObs').textContent = 'N/A';
+                    document.getElementById('chart24hMin').textContent = 'N/A';
+                    document.getElementById('chart24hMax').textContent = 'N/A';
+                    document.getElementById('chart24hAvg').textContent = 'N/A';
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('deviceModal');
+            if (event.target === modal) {
+                closeDeviceModal();
+            }
+        });
+
+        // Update dashboard
+        function updateDashboard() {
+            // Update stats
+            document.getElementById('totalDevices').textContent = devices ? devices.length : 0;
+            document.getElementById('onlineDevices').textContent = devices ? 
+                devices.filter(d => d.latency_status === 'online').length : 0;
+            
+            // Update new persistent stats
+            document.getElementById('totalObservations').textContent = stats.totalObservations || 0;
+            
+            // Format first data timestamp
+            const firstData = stats.firstObservation ? new Date(stats.firstObservation).toLocaleDateString() : '-';
+            document.getElementById('firstData').textContent = firstData;
+
+            // Update device count
+            document.getElementById('deviceCount').textContent = `${devices ? devices.length : 0} devices`;
+
+            // Update last updated time to show last commit time
+            const lastCommitTime = new Date().toLocaleString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${lastCommitTime} (Last commit: 7/26/2025, 4:58:24 PM)`;
+
+            // Update service status
+            const statusElement = document.getElementById('serviceStatus');
+            if (health.status === 'healthy') {
+                statusElement.textContent = 'Online';
+                statusElement.style.color = 'var(--accent-success)';
+            } else {
+                statusElement.textContent = 'Offline';
+                statusElement.style.color = 'var(--accent-danger)';
+            }
+        }
+
+        // Search functionality
+        let searchTerm = '';
+        
+        function filterDevices() {
+            const searchBox = document.getElementById('searchBox');
+            const searchClear = document.getElementById('searchClear');
+            const deviceCards = document.querySelectorAll('.device-card');
+            
+            searchTerm = searchBox.value.toLowerCase().trim();
+            
+            // Show/hide clear button
+            if (searchTerm) {
+                searchClear.style.display = 'block';
+            } else {
+                searchClear.style.display = 'none';
+            }
+            
+            // Filter devices
+            let visibleCount = 0;
+            deviceCards.forEach(card => {
+                // Search across all text content in the card
+                const cardText = card.textContent.toLowerCase();
+                
+                const matches = cardText.includes(searchTerm);
+                
+                if (matches) {
+                    card.style.display = 'grid';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update device count
+            const deviceCount = document.getElementById('deviceCount');
+            if (deviceCount) {
+                deviceCount.textContent = `${visibleCount} device${visibleCount !== 1 ? 's' : ''}`;
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initDashboard();
+            
+            // Search event listeners
+            const searchBox = document.getElementById('searchBox');
+            const searchClear = document.getElementById('searchClear');
+            
+            if (searchBox) {
+                searchBox.addEventListener('input', filterDevices);
+                searchBox.addEventListener('keyup', function(e) {
+                    if (e.key === 'Escape') {
+                        searchBox.value = '';
+                        filterDevices();
+                    }
+                });
+            }
+            
+            if (searchClear) {
+                searchClear.addEventListener('click', function() {
+                    searchBox.value = '';
+                    filterDevices();
+                    searchBox.focus();
+                });
+            }
+        });
+
+        // Fetch data from API
+        async function fetchData() {
+            try {
+                // Show loading
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('devicesGrid').style.display = 'none';
+
+                // Fetch health status
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                if (!healthResponse.ok) throw new Error(`Health check failed: ${healthResponse.status}`);
+                health = await healthResponse.json();
+
+                // Fetch devices for current source
+                const devicesResponse = await fetch(`${API_BASE}/api/devices?source=${currentSource}`);
+                if (!devicesResponse.ok) throw new Error(`Devices API failed: ${devicesResponse.status}`);
+                const devicesData = await devicesResponse.json();
+                devices = devicesData.data || [];
+
+                // Fetch stats
+                const statsResponse = await fetch(`${API_BASE}/api/stats`);
+                if (!statsResponse.ok) throw new Error(`Stats API failed: ${statsResponse.status}`);
+                const statsData = await statsResponse.json();
+                stats = statsData.data || {};
+
+                // Fetch monitoring sources
+                const sourcesResponse = await fetch(`${API_BASE}/api/sources`);
+                if (sourcesResponse.ok) {
+                    const sourcesData = await sourcesResponse.json();
+                    monitoringSources = sourcesData.data || [];
+                }
+
+                // Update dashboard
+                updateDashboard();
+                updateDeviceList();
+                updateAgentStatus(devices);
+
+                // Hide loading, show devices
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('devicesGrid').style.display = 'grid';
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                
+                // Hide loading, show error
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('devicesGrid').style.display = 'none';
+            }
+        }
+
+        // Setup refresh timer
+        function setupRefreshTimer() {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+            }
+            refreshTimer = setInterval(fetchData, REFRESH_INTERVAL);
+        }
+
+        // Tools Menu Functions
+        function openToolsMenu(deviceId, ipAddress, asn) {
+            // Close any existing dropdowns
+            closeAllToolsDropdowns();
+            
+            // Find the tools menu for this device
+            const deviceCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+            const toolsMenu = deviceCard.querySelector('.tools-menu');
+            const button = toolsMenu.querySelector('.tools-button');
+            
+            // Create dropdown if it doesn't exist
+            let dropdown = toolsMenu.querySelector('.tools-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.className = 'tools-dropdown';
+                dropdown.innerHTML = generateToolsMenu(ipAddress, asn);
+                document.body.appendChild(dropdown); // Append to body for proper positioning
+            }
+            
+            // Position dropdown relative to button
+            const buttonRect = button.getBoundingClientRect();
+            dropdown.style.left = buttonRect.left + 'px';
+            dropdown.style.top = (buttonRect.bottom + 5) + 'px';
+            
+            // Show dropdown
+            dropdown.classList.add('show');
+            
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!toolsMenu.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 100);
+        }
+
+        function closeAllToolsDropdowns() {
+            const dropdowns = document.querySelectorAll('.tools-dropdown');
+            dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+        }
+
+        function generateToolsMenu(ipAddress, asn) {
+            const hasIp = ipAddress && ipAddress !== 'Unknown';
+            const hasAsn = asn && asn !== '';
+            
+            return `
+                <a href="${hasIp ? `https://stat.ripe.net/${ipAddress}` : '#'}" 
+                   class="tool-item ${!hasIp ? 'disabled' : ''}" 
+                   target="_blank">
+                    RIPEstat Analysis
+                </a>
+                <a href="${hasAsn ? `https://radar.cloudflare.com/traffic/as${asn.replace('AS', '')}` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    Cloudflare Radar
+                </a>
+                <a href="${hasAsn ? `https://bgpview.io/asn/${asn.replace('AS', '')}#graph` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    BGPView Graphs
+                </a>
+                <a href="${hasAsn ? `https://www.ihr.live/en/network/AS${asn.replace('AS', '')}` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    IHR Network Health
+                </a>
+                <a href="${hasAsn ? `https://ioda.inetintel.cc.gatech.edu/asn/${asn.replace('AS', '')}` : '#'}" 
+                   class="tool-item ${!hasAsn ? 'disabled' : ''}" 
+                   target="_blank">
+                    IODA Outage Check
+                </a>
+                <a href="https://atlas.ripe.net/measurements/" 
+                   class="tool-item" 
+                   target="_blank">
+                    RIPE Atlas Tests
+                </a>
+            `;
+        }
+
+        // Initial load
+        fetchData();
+
+        // Data source toggle functionality
+        function setDataSource(source) {
+            currentDataSource = source;
+            
+            // Update button states
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`toggle${source.charAt(0).toUpperCase() + source.slice(1)}`).classList.add('active');
+            
+            // Filter and update device list
+            filterDevicesBySource();
+        }
+        
+        // Filter devices by data source
+        function filterDevicesBySource() {
+            let filteredDevices = [];
+            
+            switch (currentDataSource) {
+                case 'main':
+                    filteredDevices = devices.filter(d => !d.agent_id);
+                    break;
+                case 'lithuania':
+                    filteredDevices = devices.filter(d => d.agent_id === 'lithuania-01');
+                    break;
+                case 'all':
+                default:
+                    filteredDevices = devices;
+                    break;
+            }
+            
+            // Update device list with filtered data
+            updateDeviceListWithData(filteredDevices);
+        }
+        
+        // Update device list with specific data
+        function updateDeviceListWithData(deviceData) {
+            const devicesGrid = document.getElementById('devicesGrid');
+            
+            if (!deviceData || deviceData.length === 0) {
+                devicesGrid.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No devices found for selected data source</p>';
+                document.getElementById('deviceCount').textContent = '0 devices';
+                return;
+            }
+
+            // Sort devices by deviation score
+            const sortedDevices = sortDevicesByDeviation(deviceData);
+            
+            // Check if we need to rebuild the entire list or just update existing cards
+            const existingCards = devicesGrid.querySelectorAll('.device-card');
+            const needsRebuild = existingCards.length !== sortedDevices.length;
+            
+            if (needsRebuild) {
+                // Full rebuild needed (new devices added/removed)
+                const deviceCards = sortedDevices.map(createDeviceCard).join('');
+                devicesGrid.innerHTML = deviceCards;
+            } else {
+                // Update existing cards smoothly
+                sortedDevices.forEach((device, index) => {
+                    const existingCard = existingCards[index];
+                    if (existingCard && existingCard.dataset.deviceId === device.pubkey) {
+                        updateDeviceCard(device.pubkey, device);
+                    }
+                });
+            }
+            
+            // Update device count
+            document.getElementById('deviceCount').textContent = `${sortedDevices.length} devices`;
+            
+            // Apply search filter after updating devices
+            if (typeof filterDevices === 'function') {
+                filterDevices();
+            }
+        }
+    </script>
+</body>
+</html>
+
