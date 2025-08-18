@@ -1528,7 +1528,7 @@
 
         // Initialize the dashboard
         async function initDashboard() {
-            await loadDevices();
+            await fetchData();
             setupRefreshTimer();
         }
 
@@ -1540,6 +1540,7 @@
         let stats = {};
         let health = {};
         let latencyChart = null;
+        let monitoringSources = []; // Empty array since agent functionality removed
 
 
         
@@ -2572,25 +2573,10 @@
             filterDevicesBySource();
         }
         
-        // Filter devices by data source
+        // Filter devices by data source (simplified for single source)
         function filterDevicesBySource() {
-            let filteredDevices = [];
-            
-            switch (currentDataSource) {
-                case 'main':
-                    filteredDevices = devices.filter(d => !d.agent_id);
-                    break;
-                case 'lithuania':
-                    filteredDevices = devices.filter(d => d.agent_id === 'lithuania-01');
-                    break;
-                case 'all':
-                default:
-                    filteredDevices = devices;
-                    break;
-            }
-            
-            // Update device list with filtered data
-            updateDeviceListWithData(filteredDevices);
+            // Since we removed agent functionality, just show all devices
+            updateDeviceListWithData(devices);
         }
         
         // Update device list with specific data
