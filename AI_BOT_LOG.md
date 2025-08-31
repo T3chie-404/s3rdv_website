@@ -1470,3 +1470,78 @@ User requested commit and push after security sweep. Successfully staged all cha
 3. **Verify Live Site**: Check all graphics, links, and functionality post-deployment
 
 ---
+
+## 2024-09-13 - GitHub Pages Branch Configuration Update
+
+### Context
+User opted to configure GitHub Pages to serve directly from the `branding-refresh` branch instead of merging to `main` for now. This allows immediate deployment of the new branding while preserving the option to merge to `main` later.
+
+### Configuration Change
+- **Previous**: GitHub Pages serving from `main` branch
+- **Updated**: GitHub Pages now serving from `branding-refresh` branch
+- **Method**: Changed via GitHub repository Settings → Pages → Branch selection
+
+### Reasoning
+- Immediate deployment of new branding without affecting `main` branch
+- Allows continued development and testing on feature branch
+- Preserves clean `main` branch for future stable releases
+- Can merge to `main` later when fully satisfied with changes
+
+### Current Status
+✅ **GitHub Pages Configuration Updated**
+- Repository: T3chie-404/s3rdv_website
+- Serving from: `branding-refresh` branch
+- URL: https://s3rdv.com
+- Deployment: Automatic from branch updates
+
+### Expected Results
+- New branding graphics should now be live at s3rdv.com
+- Hero video, improved CSS styling, footer updates all deployed
+- Service icons, logos, and favicons now active
+- South 3rd Ventures LLC branding and X social link live
+
+### Next Steps
+1. **Verify Deployment**: Check s3rdv.com for new branding (may take 5-10 minutes)
+2. **Test Functionality**: Verify all links, graphics, and responsive design
+3. **Future Merge**: When ready, merge `branding-refresh` → `main` for clean production branch
+
+---
+
+## 2024-09-13 - Hairpin NAT Fix for Dashboard Connection
+
+### Context
+User reported dashboard connection error showing "Connection Error" when accessing s3rdv.com/dzd_monitor. Investigation revealed hairpin NAT issue - router doesn't support NAT loopback, preventing dashboard from accessing api.s3rdv.com from same network.
+
+### Root Cause Analysis
+- DZ Device Monitor service: ✅ Running (localhost:3000)
+- Caddy reverse proxy: ✅ Running (HTTPS certificates valid)
+- External API access: ❌ Blocked by hairpin NAT limitation
+- Local API access: ✅ Working (confirmed with curl localhost:3000)
+
+### Solution Implemented
+Updated dashboard API configuration to detect access from s3rdv.com and use direct server IP instead of external domain:
+
+```javascript
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : window.location.hostname === 's3rdv.com'
+    ? 'http://192.190.136.34:3000'  // Direct to server IP to bypass hairpin NAT
+    : 'https://api.s3rdv.com';      // External HTTPS for other domains
+```
+
+### Benefits
+- Resolves connection error on dashboard
+- Maintains HTTPS for external access
+- Preserves localhost development capability
+- No infrastructure changes required
+
+### Deployment Status
+- Changes committed to branding-refresh branch
+- Ready for push to GitHub Pages (requires SSH key authentication)
+
+### Next Steps
+- Push changes to GitHub with SSH authentication
+- Verify dashboard functionality at s3rdv.com/dzd_monitor
+- Monitor for successful device data display
+
+---
