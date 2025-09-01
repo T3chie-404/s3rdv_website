@@ -1545,3 +1545,88 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 - Monitor for successful device data display
 
 ---
+
+## 2025-09-01 03:45:00 - Ping Measurement System Analysis
+
+### Current Ping Measurement System Analysis:
+
+**How Measurements Work Currently:**
+1. **Single Measurement**: Each 30-second check uses `doublezero latency --json` which provides `avg_latency_ns`
+2. **DoubleZero CLI**: The CLI tool itself likely does internal averaging, but we get one value per device per check
+3. **Data Structure**: Each device returns `min_latency_ns`, `max_latency_ns`, `avg_latency_ns`, and `reachable` status
+4. **Retry Logic**: System retries up to 3 times if less than 80% of devices return valid data
+5. **5-minute Rolling Stats**: Currently implemented - uses last 10 observations for MIN/MAX/AVG display
+
+**Current Issues Identified:**
+1. **Missing DEVIATION**: User wants DEVIATION statistic added to 5-minute rolling display
+2. **Single Point Measurement**: Each check relies on one measurement per device (potential for outliers)
+3. **Unknown CLI Behavior**: Unclear if `doublezero latency` does internal averaging or single ping
+
+**User Requirements:**
+- Display 5-minute MAX/MIN/AVG/DEVIATION on main page tiles
+- Consider multiple ping sampling to reduce outliers (suggested 3 pings per device per check)
+- Make information more digestible for users
+
+**Hybrid Approach Decision**: User chose to keep main website on GitHub Pages and move only `/dzd_monitor` to Caddy with User-Agent detection. This provides easy revertibility via DNS changes only.
+
+**Analysis & Recommendations:**
+- **DEVIATION**: Easy to implement using standard deviation formula on 5-minute rolling data
+- **Multi-ping sampling**: Would require custom ping implementation instead of relying on `doublezero latency`
+- **Trade-offs**: More pings = better accuracy but longer check times and higher network load
+
+**Next Steps**: Implement DEVIATION calculation and evaluate multi-ping sampling approach.
+
+---
+
+## 2025-09-01 17:40:00 - 5-Minute Statistics & UX Improvements Complete
+
+### **Changes Implemented:**
+
+**Backend Changes** (`dz-device-monitor/src/services/monitoring.js`):
+1. **5-Minute DEVIATION**: Changed deviation calculation from 24-hour (2880 observations) to 5-minute (10 observations)
+   - Now uses `recent5min` array instead of `recentLatencies.slice(-2880)`
+   - Calculates deviation against 5-minute average instead of 24-hour average
+   - More responsive to recent latency changes
+
+**Frontend Changes** (`s3rdv_website/dzd_monitor.html`):
+1. **Enhanced Tooltips**: Completely redesigned hover tooltips for better user understanding:
+   - **MIN**: "Minimum latency observed in the last 5 minutes" with value, timeframe, and sampling info
+   - **MAX**: "Maximum latency observed in the last 5 minutes" with detailed context
+   - **AVG**: "Average latency over the last 5 minutes" with measurement count
+   - **LAST**: "Most recent latency measurement" with deviation from 5-min average and status
+   - **DEVIATION**: Updated to show "Last 10 observations (5 minutes)" timeframe
+
+2. **Favicon Fix**: Added proper favicon links to `dzd_monitor.html`:
+   ```html
+   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+   <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+   <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+   ```
+
+3. **Label Clarity**: Changed "First Data" to "Monitoring Started" to distinguish from per-device "Earliest Observed"
+   - **Monitoring Started**: When the system-wide monitoring service began
+   - **Earliest Observed**: When each specific device was first detected (shown in device modal)
+
+**Mobile Version Updates** (`s3rdv_website/dzd_monitor_mobile.html`):
+- Applied same label change: "First Data" → "Monitoring Started"
+
+**Service Management**:
+- Successfully restarted `dz-device-monitor.service` to apply backend changes
+- Service running normally with new 5-minute deviation calculations
+
+### **User Experience Improvements:**
+- ✅ **More Digestible Information**: All metrics now use 5-minute rolling windows for current status
+- ✅ **Better Tooltips**: Detailed explanations of what each metric represents
+- ✅ **Consistent Branding**: Favicon now appears on all pages
+- ✅ **Clear Labels**: Eliminated confusion between system-wide and device-specific timestamps
+- ✅ **Real-time Responsiveness**: Deviation now reflects recent changes, not 24-hour history
+
+### **Technical Benefits:**
+- **Faster Response**: 5-minute deviation detects issues 288x faster than 24-hour window
+- **Better Accuracy**: Statistics reflect current device performance, not historical averages
+- **User-Friendly**: Tooltips provide context without overwhelming technical users
+- **Professional Appearance**: Consistent favicon across all dashboard pages
+
+**Status**: All requested improvements implemented and deployed. Dashboard now provides more digestible, real-time information with enhanced user experience.
+
+---

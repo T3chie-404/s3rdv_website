@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DZ Device Monitor - Mobile</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #1e1e2e;
+            --bg-hover: #2a2a3e;
+            --accent-primary: #00d4ff;
+            --accent-success: #00ff88;
+            --accent-warning: #ffaa00;
+            --accent-danger: #ff4757;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        /* Mobile-First Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .logo img {
+            height: 20px;
+            width: auto;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-success);
+        }
+
+        /* Mobile Search */
+        .search-container {
+            padding: 1rem;
+            background: var(--bg-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        /* Mobile Stats Cards */
+        .stats-container {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Mobile Device Cards */
+        .devices-container {
+            padding: 0 1rem 1rem;
+        }
+
+        .device-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .device-card:active {
+            transform: scale(0.98);
+            background: var(--bg-hover);
+        }
+
+        .device-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .device-location {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .device-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-success);
+        }
+
+        .status-offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-danger);
+        }
+
+        .device-body {
+            padding: 1rem;
+        }
+
+        .device-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .metric-timeframe {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .device-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .chart-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chart-button:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        /* Mobile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button:active {
+            background: var(--bg-hover);
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin: 1rem 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .timeframe-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .timeframe-btn {
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .timeframe-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .timeframe-btn:active {
+            transform: scale(0.95);
+        }
+
+        .chart-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .chart-stat {
+            text-align: center;
+        }
+
+        .chart-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .chart-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Loading and Error States */
+        .loading, .error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: var(--accent-danger);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Touch Improvements */
+        button, .chart-button, .timeframe-btn {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Prevent horizontal scroll */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="/assets/images/branding/wide/S3V_Transparent logo_wide_6k.png" alt="S3RDV">
+                <span>DZ Monitor</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input type="search" class="search-input" id="searchInput" placeholder="Search devices..." autocomplete="off">
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-container" id="statsContainer">
+        <div class="stat-card">
+            <div class="stat-value" id="totalDevices">-</div>
+            <div class="stat-label">Total Devices</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="onlineDevices">-</div>
+            <div class="stat-label">Online</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalObservations">-</div>
+            <div class="stat-label">Observations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="firstData">-</div>
+            <div class="stat-label">Monitoring Started</div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div>Loading devices...</div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error hidden" id="error">
+        <div>⚠️ Connection Error</div>
+        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Unable to connect to monitoring service</div>
+    </div>
+
+    <!-- Devices Container -->
+    <div class="devices-container" id="devicesContainer"></div>
+
+    <!-- Chart Modal -->
+    <div class="modal" id="chartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Device Chart</div>
+                <button class="close-button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="timeframe-buttons">
+                    <button class="timeframe-btn active" onclick="changeTimeframe('5m')">5m</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('1h')">1h</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('6h')">6h</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('24h')">24h</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="deviceChart"></canvas>
+                </div>
+                <div class="chart-stats" id="chartStats">
+                    <div class="chart-stat">
+                        <div class="chart-stat-value" id="chartMin">-</div>
+                        <div class="chart-stat-label">Min</div>
+                    </div>
+                    <div class="chart-stat">
+                        <div class="chart-stat-value" id="chartMax">-</div>
+                        <div class="chart-stat-label">Max</div>
+                    </div>
+                    <div class="chart-stat">
+                        <div class="chart-stat-value" id="chartAvg">-</div>
+                        <div class="chart-stat-label">Average</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://api.s3rdv.com';
+        
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+        let devices = [];
+        let currentDevice = null;
+        let currentTimeframe = '5m';
+        let chart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSearch();
+            loadData();
+            setInterval(loadData, REFRESH_INTERVAL);
+        });
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                filterDevices(query);
+            });
+        }
+
+        function filterDevices(query) {
+            const deviceCards = document.querySelectorAll('.device-card');
+            deviceCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Data loading
+        async function loadData() {
+            try {
+                document.getElementById('loading').classList.remove('hidden');
+                document.getElementById('error').classList.add('hidden');
+
+                // Load devices
+                const devicesResponse = await fetch(`${API_BASE}/api/devices`);
+                const devicesData = await devicesResponse.json();
+                
+                // Load stats
+                const statsResponse = await fetch(`${API_BASE}/api/stats`);
+                const statsData = await statsResponse.json();
+
+                if (devicesData.success) {
+                    devices = devicesData.data;
+                    renderDevices();
+                    updateStats(statsData);
+                    updateStatus(true);
+                }
+
+                document.getElementById('loading').classList.add('hidden');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                updateStatus(false);
+            }
+        }
+
+        // Render devices
+        function renderDevices() {
+            const container = document.getElementById('devicesContainer');
+            container.innerHTML = '';
+
+            devices.forEach(device => {
+                const card = createDeviceCard(device);
+                container.appendChild(card);
+            });
+        }
+
+        function createDeviceCard(device) {
+            const card = document.createElement('div');
+            card.className = 'device-card';
+            
+            // Calculate 5-minute rolling stats (10 observations at 30-second intervals)
+            const fiveMinStats = calculate5MinuteStats(device);
+            
+            card.innerHTML = `
+                <div class="device-header">
+                    <div>
+                        <div class="device-name">${device.display_name || device.name}</div>
+                        <div class="device-location">${device.location}</div>
+                    </div>
+                    <div class="device-status ${device.latency_status === 'online' ? 'status-online' : 'status-offline'}">
+                        ${device.latency_status === 'online' ? 'Online' : 'Offline'}
+                    </div>
+                </div>
+                <div class="device-body">
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <div class="metric-value">${device.latency || 'N/A'}</div>
+                            <div class="metric-label">Current Ping</div>
+                            <div class="metric-timeframe">ms</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${fiveMinStats.avg}</div>
+                            <div class="metric-label">5min Avg</div>
+                            <div class="metric-timeframe">ms</div>
+                        </div>
+                    </div>
+                    <div class="device-details">
+                        <div class="detail-item">
+                            <span class="detail-label">5min Min:</span>
+                            <span class="detail-value">${fiveMinStats.min}ms</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">5min Max:</span>
+                            <span class="detail-value">${fiveMinStats.max}ms</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span>
+                            <span class="detail-value">${device.type}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">ASN:</span>
+                            <span class="detail-value">${device.asn ? `AS${device.asn}` : 'N/A'}</span>
+                        </div>
+                    </div>
+                    <button class="chart-button" onclick="showChart('${device.pubkey}', '${device.display_name || device.name}')">
+                        📊 View Chart
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Calculate 5-minute rolling stats
+        function calculate5MinuteStats(device) {
+            if (!device.historical_stats) {
+                return { min: 'N/A', max: 'N/A', avg: 'N/A' };
+            }
+
+            // For now, use the existing stats but we'll modify the backend later
+            // This is a placeholder that shows the concept
+            return {
+                min: device.historical_stats.min || 'N/A',
+                max: device.historical_stats.max || 'N/A', 
+                avg: Math.round(device.historical_stats.avg) || 'N/A'
+            };
+        }
+
+        // Update stats
+        function updateStats(statsData) {
+            if (statsData && statsData.success) {
+                const stats = statsData.data;
+                document.getElementById('totalDevices').textContent = devices.length;
+                document.getElementById('onlineDevices').textContent = devices.filter(d => d.latency_status === 'online').length;
+                document.getElementById('totalObservations').textContent = formatNumber(stats.totalObservations);
+                
+                if (stats.firstObservation) {
+                    const date = new Date(stats.firstObservation);
+                    document.getElementById('firstData').textContent = date.toLocaleDateString();
+                } else {
+                    document.getElementById('firstData').textContent = 'N/A';
+                }
+            }
+        }
+
+        // Update status indicator
+        function updateStatus(online) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (online) {
+                dot.style.background = 'var(--accent-success)';
+                text.textContent = 'Online';
+            } else {
+                dot.style.background = 'var(--accent-danger)';
+                text.textContent = 'Offline';
+            }
+        }
+
+        // Chart functionality
+        async function showChart(deviceId, deviceName) {
+            currentDevice = { pubkey: deviceId, name: deviceName };
+            document.getElementById('modalTitle').textContent = deviceName;
+            document.getElementById('chartModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            
+            await loadChart();
+        }
+
+        function closeModal() {
+            document.getElementById('chartModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+
+        function changeTimeframe(timeframe) {
+            currentTimeframe = timeframe;
+            
+            // Update button states
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadChart();
+        }
+
+        async function loadChart() {
+            if (!currentDevice) return;
+            
+            try {
+                // Map mobile timeframes to API timeframes
+                const timeframeMap = {
+                    '5m': '25h',  // Use 25h data but show last 5 minutes
+                    '1h': '25h',  // Use 25h data but show last 1 hour
+                    '6h': '25h',  // Use 25h data but show last 6 hours
+                    '24h': '25h'  // Use 25h data
+                };
+                
+                const apiTimeframe = timeframeMap[currentTimeframe] || '25h';
+                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${apiTimeframe}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.history) {
+                    renderChart(data.data.history);
+                }
+            } catch (error) {
+                console.error('Error loading chart:', error);
+            }
+        }
+
+        function renderChart(historyData) {
+            const ctx = document.getElementById('deviceChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            // Filter data based on timeframe
+            const now = new Date();
+            const timeframeMinutes = {
+                '5m': 5,
+                '1h': 60,
+                '6h': 360,
+                '24h': 1440
+            };
+            
+            const minutes = timeframeMinutes[currentTimeframe] || 1440;
+            const cutoffTime = new Date(now.getTime() - minutes * 60 * 1000);
+            
+            const filteredData = historyData.filter(point => {
+                return new Date(point.timestamp) >= cutoffTime;
+            });
+            
+            const labels = filteredData.map(point => {
+                const date = new Date(point.timestamp);
+                if (currentTimeframe === '5m' || currentTimeframe === '1h') {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    return date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+            });
+            
+            const latencies = filteredData.map(point => point.latency).filter(l => l !== null);
+            
+            // Update chart stats
+            if (latencies.length > 0) {
+                const min = Math.min(...latencies);
+                const max = Math.max(...latencies);
+                const avg = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length);
+                
+                document.getElementById('chartMin').textContent = min + 'ms';
+                document.getElementById('chartMax').textContent = max + 'ms';
+                document.getElementById('chartAvg').textContent = avg + 'ms';
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Latency (ms)',
+                        data: filteredData.map(point => point.latency),
+                        borderColor: 'var(--accent-primary)',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 1,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text-muted)',
+                                maxTicksLimit: 6
+                            }
+                        },
+                        y: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text-muted)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Utility functions
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // Handle modal close on background tap
+        document.getElementById('chartModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

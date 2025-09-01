@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DZ Device Monitor - Real-time Network Monitoring</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -1354,7 +1359,7 @@
                 </div>
                 <div class="stat-card">
                         <div class="stat-value" id="firstData">-</div>
-                        <div class="stat-label">First Data</div>
+                        <div class="stat-label">Monitoring Started</div>
                     </div>
                 </div>
             </div>
@@ -1629,20 +1634,20 @@
                 return 'No latency data available';
             }
             
-            // Compare against average
+            // Compare against 5-minute average
             if (device.historical_stats && device.historical_stats.avg) {
                 const deviation = device.latency - device.historical_stats.avg;
                 
                 if (deviation <= 2) {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: Within 2ms of average (Green)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: Within 2ms of average (Good)`;
                 } else if (deviation <= 5) {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: 2-5ms higher than average (Orange)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: 2-5ms higher than average (Caution)`;
                 } else {
-                    return `Current: ${device.latency}ms\nAverage: ${device.historical_stats.avg}ms\nStatus: >5ms higher than average (Red)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: >5ms higher than average (Alert)`;
                 }
             }
             
-            return `Current: ${device.latency}ms`;
+            return `Most recent latency measurement: ${device.latency}ms`;
         }
 
         // Get Min/Max/Average tooltip
@@ -1651,16 +1656,16 @@
                 return 'No historical data available';
             }
             
-            const timeframe = 'Last 24 hours';
-            const observations = device.historical_stats.observations24h || 0;
+            const timeframe = 'Last 5 minutes';
+            const observations = device.historical_stats.observations5min || 0;
             
             switch(statType) {
                 case 'min':
-                    return `Minimum: ${device.historical_stats.min}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                    return `Minimum latency observed in the last 5 minutes\nValue: ${device.historical_stats.min}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 case 'max':
-                    return `Maximum: ${device.historical_stats.max}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                    return `Maximum latency observed in the last 5 minutes\nValue: ${device.historical_stats.max}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 case 'avg':
-                    return `Average: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe}\nObservations: ${observations}`;
+                    return `Average latency over the last 5 minutes\nValue: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 default:
                     return `Timeframe: ${timeframe}\nObservations: ${observations}`;
             }
@@ -1707,7 +1712,7 @@
                 const maxDeviation = device.historical_stats.maxDeviation;
                 
                 if (maxDeviation > 0.1) {
-                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 2880 observations (24 hours)`;
+                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 10 observations (5 minutes)`;
                 }
             }
             
