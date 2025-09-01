@@ -924,8 +924,42 @@
             transform: rotate(180deg);
         }
 
-        /* Mobile and Refresh Button Styles */
-        .refresh-btn, .mobile-btn {
+        /* Header Right Section */
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Mobile Button in Header */
+        .mobile-btn-header {
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.85rem;
+        }
+
+        .mobile-btn-header:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mobile-btn-header span {
+            font-size: 0.9rem;
+        }
+
+        /* Refresh Button Styles */
+        .refresh-btn {
             background: var(--gradient-primary);
             color: white;
             border: none;
@@ -942,16 +976,12 @@
             font-size: 0.9rem;
         }
 
-        .mobile-btn {
-            background: var(--gradient-secondary);
-        }
-
-        .refresh-btn:hover, .mobile-btn:hover {
+        .refresh-btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
 
-        .refresh-btn span, .mobile-btn span {
+        .refresh-btn span {
             font-size: 1rem;
         }
 
@@ -1308,9 +1338,15 @@
                 <span style="opacity:0.85;">DZ Device Monitor</span>
                 <span class="version-badge">v1.1.0</span>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span id="serviceStatus">Connecting...</span>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="serviceStatus">Connecting...</span>
+                </div>
+                <button class="mobile-btn-header" onclick="switchToMobile()">
+                    <span>📱</span>
+                    Mobile Version
+                </button>
             </div>
         </div>
     </header>
@@ -1339,10 +1375,6 @@
                         <!-- Source buttons will be populated dynamically -->
                     </div>
                 </div>
-                <button class="mobile-btn" onclick="switchToMobile()">
-                    <span>📱</span>
-                    Mobile Version
-                </button>
                 <button class="refresh-btn" onclick="fetchData()">
                     <span>🔄</span>
                     Refresh Data
