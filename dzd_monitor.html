@@ -924,6 +924,37 @@
             transform: rotate(180deg);
         }
 
+        /* Mobile and Refresh Button Styles */
+        .refresh-btn, .mobile-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .mobile-btn {
+            background: var(--gradient-secondary);
+        }
+
+        .refresh-btn:hover, .mobile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .refresh-btn span, .mobile-btn span {
+            font-size: 1rem;
+        }
+
                 .collapsible-content {
             max-height: 0;
             overflow: hidden;
@@ -1308,6 +1339,10 @@
                         <!-- Source buttons will be populated dynamically -->
                     </div>
                 </div>
+                <button class="mobile-btn" onclick="switchToMobile()">
+                    <span>📱</span>
+                    Mobile Version
+                </button>
                 <button class="refresh-btn" onclick="fetchData()">
                     <span>🔄</span>
                     Refresh Data
@@ -1563,6 +1598,11 @@
             }
         }
 
+        // Switch to mobile version
+        function switchToMobile() {
+            window.location.href = '/dzd_monitor_mobile.html';
+        }
+
         // Agent status toggle functionality
 
 
@@ -1634,16 +1674,16 @@
                 return 'No latency data available';
             }
             
-            // Compare against 5-minute average
+            // Compare against 30-minute average
             if (device.historical_stats && device.historical_stats.avg) {
                 const deviation = device.latency - device.historical_stats.avg;
                 
                 if (deviation <= 2) {
-                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: Within 2ms of average (Good)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n30-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: Within 2ms of average (Good)`;
                 } else if (deviation <= 5) {
-                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: 2-5ms higher than average (Caution)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n30-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: 2-5ms higher than average (Caution)`;
                 } else {
-                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n5-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: >5ms higher than average (Alert)`;
+                    return `Most recent latency measurement\nCurrent: ${device.latency}ms\n30-min Average: ${device.historical_stats.avg}ms\nDeviation: ${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}ms\nStatus: >5ms higher than average (Alert)`;
                 }
             }
             
@@ -1656,16 +1696,16 @@
                 return 'No historical data available';
             }
             
-            const timeframe = 'Last 5 minutes';
-            const observations = device.historical_stats.observations5min || 0;
+            const timeframe = 'Last 30 minutes';
+            const observations = device.historical_stats.observations30min || 0;
             
             switch(statType) {
                 case 'min':
-                    return `Minimum latency observed in the last 5 minutes\nValue: ${device.historical_stats.min}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
+                    return `Minimum latency observed in the last 30 minutes\nValue: ${device.historical_stats.min}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 case 'max':
-                    return `Maximum latency observed in the last 5 minutes\nValue: ${device.historical_stats.max}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
+                    return `Maximum latency observed in the last 30 minutes\nValue: ${device.historical_stats.max}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 case 'avg':
-                    return `Average latency over the last 5 minutes\nValue: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
+                    return `Average latency over the last 30 minutes\nValue: ${device.historical_stats.avg}ms\nTimeframe: ${timeframe} (${observations} measurements)\nSampled every 30 seconds`;
                 default:
                     return `Timeframe: ${timeframe}\nObservations: ${observations}`;
             }
@@ -1712,7 +1752,7 @@
                 const maxDeviation = device.historical_stats.maxDeviation;
                 
                 if (maxDeviation > 0.1) {
-                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 10 observations (5 minutes)`;
+                    return `Greatest observed deviation: ${maxDeviation.toFixed(1)}ms from average\nTimeframe: Last 60 observations (30 minutes)`;
                 }
             }
             
@@ -1932,7 +1972,7 @@
                     
                     <!-- DEVIATION -->
                     <div class="deviation-symbol">
-                        <div class="info-label">24hr Deviation</div>
+                        <div class="info-label">30min Deviation</div>
                         <div class="deviation-icon" style="font-size: 1rem; text-align: center;" 
                              title="${getDeviationTooltip(device)}">
                             ${getDeviationSymbol(device)}
