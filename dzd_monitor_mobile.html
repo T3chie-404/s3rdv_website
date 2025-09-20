@@ -119,6 +119,39 @@
             font-size: 16px; /* Prevents zoom on iOS */
         }
 
+        /* Mobile Network Selector */
+        .network-selector-mobile {
+            padding: 0 1rem 1rem;
+        }
+
+        .network-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .network-btn {
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .network-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .network-btn:not(.active):active {
+            background: var(--bg-hover);
+        }
+
         /* Mobile Stats Cards */
         .stats-container {
             padding: 1rem;
@@ -469,6 +502,18 @@
     <!-- Search -->
     <div class="search-container">
         <input type="search" class="search-input" id="searchInput" placeholder="Search devices..." autocomplete="off">
+    </div>
+
+    <!-- Network Selector -->
+    <div class="network-selector-mobile">
+        <div class="network-buttons">
+            <button class="network-btn active" data-network="testnet" onclick="switchNetwork('testnet')">
+                Testnet
+            </button>
+            <button class="network-btn" data-network="mainnet-beta" onclick="switchNetwork('mainnet-beta')">
+                Mainnet
+            </button>
+        </div>
     </div>
 
     <!-- Stats -->
@@ -894,6 +939,31 @@
                 closeModal();
             }
         });
+
+        // Network switching functionality
+        let currentNetwork = 'testnet';
+
+        function switchNetwork(network) {
+            if (network === currentNetwork) return;
+            
+            // Update button states
+            document.querySelectorAll('.network-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.network === network) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            currentNetwork = network;
+            console.log(`Switched to network: ${network}`);
+            
+            // Clear existing data and show loading
+            document.getElementById('deviceGrid').innerHTML = '';
+            document.getElementById('loading').style.display = 'block';
+            
+            // Fetch new data for the selected network
+            fetchData();
+        }
 
         // Switch to desktop version
         function switchToDesktop() {

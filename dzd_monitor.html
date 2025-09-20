@@ -1144,7 +1144,7 @@
 
 
         /* Data Source Toggle Styles */
-        .data-source-toggle {
+        .data-source-toggle, .network-selector {
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -1373,6 +1373,17 @@
                     <label class="toggle-label">Monitoring Source:</label>
                     <div id="source-toggle" class="toggle-buttons">
                         <!-- Source buttons will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="network-selector">
+                    <label class="toggle-label">Network:</label>
+                    <div id="network-toggle" class="toggle-buttons">
+                        <button class="toggle-btn active" data-network="testnet" onclick="switchNetwork('testnet')">
+                            Testnet
+                        </button>
+                        <button class="toggle-btn" data-network="mainnet-beta" onclick="switchNetwork('mainnet-beta')">
+                            Mainnet
+                        </button>
                     </div>
                 </div>
                 <button class="refresh-btn" onclick="fetchData()">
@@ -1633,6 +1644,31 @@
         // Switch to mobile version
         function switchToMobile() {
             window.location.href = '/dzd_monitor_mobile.html';
+        }
+
+        // Network switching functionality
+        let currentNetwork = 'testnet';
+
+        function switchNetwork(network) {
+            if (network === currentNetwork) return;
+            
+            // Update button states
+            document.querySelectorAll('#network-toggle .toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.network === network) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            currentNetwork = network;
+            console.log(`Switched to network: ${network}`);
+            
+            // Clear existing data and show loading
+            document.getElementById('deviceGrid').innerHTML = '';
+            document.getElementById('loading').style.display = 'block';
+            
+            // Fetch new data for the selected network
+            fetchData();
         }
 
         // Agent status toggle functionality
@@ -2116,7 +2152,7 @@
         async function loadEarliestObserved(deviceId) {
             try {
                 // Fetch all history data for the device
-                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all`);
+                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all&network=${currentNetwork}`);
                 const data = await response.json();
                 
                 if (data.success && data.data.history && data.data.history.length > 0) {
@@ -2167,7 +2203,7 @@
             
             try {
                 // Fetch chart data from API
-                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${currentTimeframe}`);
+                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${currentTimeframe}&network=${currentNetwork}`);
                 const data = await response.json();
                 
                 if (!data.success) {
@@ -2511,13 +2547,13 @@
                 health = await healthResponse.json();
 
                 // Fetch devices for current source
-                const devicesResponse = await fetch(`${API_BASE}/api/devices`);
+                const devicesResponse = await fetch(`${API_BASE}/api/devices?network=${currentNetwork}`);
                 if (!devicesResponse.ok) throw new Error(`Devices API failed: ${devicesResponse.status}`);
                 const devicesData = await devicesResponse.json();
                 devices = devicesData.data || [];
 
                 // Fetch stats
-                const statsResponse = await fetch(`${API_BASE}/api/stats`);
+                const statsResponse = await fetch(`${API_BASE}/api/stats?network=${currentNetwork}`);
                 if (!statsResponse.ok) throw new Error(`Stats API failed: ${statsResponse.status}`);
                 const statsData = await statsResponse.json();
                 stats = statsData.data || {};
