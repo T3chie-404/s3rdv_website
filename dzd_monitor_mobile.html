@@ -946,6 +946,8 @@
         function switchNetwork(network) {
             if (network === currentNetwork) return;
             
+            console.log(`Network selection: ${network}`);
+            
             // Update button states
             document.querySelectorAll('.network-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -955,14 +957,14 @@
             });
             
             currentNetwork = network;
-            console.log(`Switched to network: ${network}`);
             
-            // Clear existing data and show loading
-            document.getElementById('deviceGrid').innerHTML = '';
-            document.getElementById('loading').style.display = 'block';
-            
-            // Fetch new data for the selected network
-            fetchData();
+            // For now, show a message that this feature is coming soon
+            if (network === 'mainnet-beta') {
+                alert('🚀 Mainnet-Beta monitoring is coming soon!\n\nCurrently showing Testnet data.\nMainnet-Beta support will be added in the next update.');
+            } else {
+                // Testnet is the current data
+                console.log('Showing current testnet data');
+            }
         }
 
         // Switch to desktop version

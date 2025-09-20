@@ -1679,41 +1679,25 @@
         function switchNetwork(network) {
             if (network === currentNetwork) return;
             
-            console.log(`Switching to network: ${network}`);
+            console.log(`Network selection: ${network}`);
             
-            // Show immediate loading feedback
-            const loadingElement = document.getElementById('loading');
-            const deviceGrid = document.getElementById('deviceGrid');
-            const errorElement = document.getElementById('error');
-            
-            // Update button states immediately for visual feedback
+            // Update button states
             document.querySelectorAll('#network-toggle .toggle-btn').forEach(btn => {
                 btn.classList.remove('active');
-                btn.disabled = true; // Disable buttons during switch
                 if (btn.dataset.network === network) {
                     btn.classList.add('active');
                 }
             });
             
-            // Show loading state immediately
-            loadingElement.style.display = 'flex';
-            deviceGrid.style.display = 'none';
-            errorElement.style.display = 'none';
-            
-            // Update network variable
             currentNetwork = network;
             
-            // Add loading message specific to network switching
-            const loadingText = loadingElement.querySelector('p') || document.createElement('p');
-            loadingText.textContent = `Switching to ${network === 'testnet' ? 'Testnet' : 'Mainnet-Beta'}...`;
-            loadingText.style.marginTop = '1rem';
-            loadingText.style.color = 'var(--text-secondary)';
-            if (!loadingElement.querySelector('p')) {
-                loadingElement.appendChild(loadingText);
+            // For now, show a message that this feature is coming soon
+            if (network === 'mainnet-beta') {
+                alert('🚀 Mainnet-Beta monitoring is coming soon!\n\nCurrently showing Testnet data.\nMainnet-Beta support will be added in the next update.');
+            } else {
+                // Testnet is the current data
+                console.log('Showing current testnet data');
             }
-            
-            // Fetch new data for the selected network with timeout
-            fetchDataWithTimeout(15000); // 15 second timeout
         }
         
         // Enhanced fetchData with timeout and better error handling
@@ -2246,7 +2230,7 @@
         async function loadEarliestObserved(deviceId) {
             try {
                 // Fetch all history data for the device
-                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all&network=${currentNetwork}`);
+                const response = await fetch(`${API_BASE}/api/devices/${deviceId}/history?timeframe=all`);
                 const data = await response.json();
                 
                 if (data.success && data.data.history && data.data.history.length > 0) {
@@ -2297,7 +2281,7 @@
             
             try {
                 // Fetch chart data from API
-                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${currentTimeframe}&network=${currentNetwork}`);
+                const response = await fetch(`${API_BASE}/api/devices/${currentDevice.pubkey}/history?timeframe=${currentTimeframe}`);
                 const data = await response.json();
                 
                 if (!data.success) {
@@ -2650,13 +2634,13 @@
                 health = await healthResponse.json();
 
                 // Fetch devices for current source
-                const devicesResponse = await fetch(`${API_BASE}/api/devices?network=${currentNetwork}`, fetchOptions);
+                const devicesResponse = await fetch(`${API_BASE}/api/devices`, fetchOptions);
                 if (!devicesResponse.ok) throw new Error(`Devices API failed: ${devicesResponse.status}`);
                 const devicesData = await devicesResponse.json();
                 devices = devicesData.data || [];
 
                 // Fetch stats
-                const statsResponse = await fetch(`${API_BASE}/api/stats?network=${currentNetwork}`, fetchOptions);
+                const statsResponse = await fetch(`${API_BASE}/api/stats`, fetchOptions);
                 if (!statsResponse.ok) throw new Error(`Stats API failed: ${statsResponse.status}`);
                 const statsData = await statsResponse.json();
                 stats = statsData.data || {};
