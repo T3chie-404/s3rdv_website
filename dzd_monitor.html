@@ -1676,28 +1676,82 @@
         // Network switching functionality
         let currentNetwork = 'testnet';
 
-        function switchNetwork(network) {
+        async function switchNetwork(network) {
             if (network === currentNetwork) return;
             
-            console.log(`Network selection: ${network}`);
+            console.log(`Switching to network: ${network}`);
             
-            // Update button states
+            // Update button states and disable during switch
             document.querySelectorAll('#network-toggle .toggle-btn').forEach(btn => {
                 btn.classList.remove('active');
+                btn.disabled = true;
                 if (btn.dataset.network === network) {
                     btn.classList.add('active');
                 }
             });
             
-            currentNetwork = network;
+            // Show loading state
+            const loadingElement = document.getElementById('loading');
+            const deviceGrid = document.getElementById('deviceGrid');
+            const errorElement = document.getElementById('error');
             
-            // For now, show a message that this feature is coming soon
-            if (network === 'mainnet-beta') {
-                alert('🚀 Mainnet-Beta monitoring is coming soon!\n\nCurrently showing Testnet data.\nMainnet-Beta support will be added in the next update.');
-            } else {
-                // Testnet is the current data
-                console.log('Showing current testnet data');
+            loadingElement.style.display = 'flex';
+            deviceGrid.style.display = 'none';
+            errorElement.style.display = 'none';
+            
+            try {
+                // Switch the backend network
+                const response = await fetch(`${API_BASE}/api/networks/switch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ network: network })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Network switch failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Network switch result:', result);
+                
+                currentNetwork = network;
+                
+                // Show message about restart requirement
+                if (result.restartRequired) {
+                    showError(`Network switched to ${network}. Service restart required for full effect. Please wait a moment while the service restarts...`);
+                    
+                    // Try to restart the service (this will require service restart on backend)
+                    setTimeout(() => {
+                        fetchData(); // Try to fetch data after a delay
+                    }, 3000);
+                } else {
+                    // Fetch new data
+                    await fetchData();
+                }
+                
+            } catch (error) {
+                console.error('Network switch failed:', error);
+                
+                // Reset button states on error
+                document.querySelectorAll('#network-toggle .toggle-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.disabled = false;
+                    if (btn.dataset.network === currentNetwork) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                showError(`Failed to switch to ${network}: ${error.message}`);
             }
+            
+            // Re-enable buttons
+            setTimeout(() => {
+                document.querySelectorAll('#network-toggle .toggle-btn').forEach(btn => {
+                    btn.disabled = false;
+                });
+            }, 1000);
         }
         
         // Enhanced fetchData with timeout and better error handling
