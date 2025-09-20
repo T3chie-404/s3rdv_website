@@ -189,13 +189,17 @@
         }
 
         .network-badge.testnet {
-            background: var(--accent-warning);
-            color: var(--bg-primary);
+            background: linear-gradient(135deg, #ffaa00, #ff6b35);
+            color: var(--text-primary);
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .network-badge.mainnet-beta {
-            background: var(--accent-success);
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
             color: var(--bg-primary);
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .device-info {
@@ -382,8 +386,18 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DZ Monitor initialized');
             fetchData();
             setInterval(fetchData, 30000); // Refresh every 30 seconds
+            
+            // Debug: Log button states
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.network-btn');
+                console.log(`Found ${buttons.length} network buttons`);
+                buttons.forEach(btn => {
+                    console.log(`Button: ${btn.dataset.network}, Active: ${btn.classList.contains('active')}, Disabled: ${btn.disabled}`);
+                });
+            }, 1000);
         });
 
         // Fetch data from API
@@ -422,17 +436,23 @@
 
         // Filter devices by network
         function filterByNetwork(network) {
+            // Prevent multiple rapid clicks
+            if (currentFilter === network) return;
+            
             currentFilter = network;
             
             // Update button states
             document.querySelectorAll('.network-btn').forEach(btn => {
                 btn.classList.remove('active');
+                btn.disabled = false; // Ensure buttons are never disabled
                 if (btn.dataset.network === network) {
                     btn.classList.add('active');
                 }
             });
 
             updateDisplay();
+            
+            console.log(`Filtered to: ${network}, showing ${getFilteredDevices().length} devices`);
         }
 
         // Update display with current filter
@@ -469,12 +489,13 @@
             const status = device.latency_status || 'unknown';
             const statusClass = status === 'online' ? 'status-online' : 'status-offline';
             const networkClass = device.network === 'testnet' ? 'testnet' : 'mainnet-beta';
+            const networkDisplay = device.network === 'testnet' ? 'TESTNET' : 'MAINNET';
             
             return `
                 <div class="device-card">
                     <div class="device-header">
                         <div class="device-code">${device.code || 'Unknown'}</div>
-                        <div class="network-badge ${networkClass}">${device.network}</div>
+                        <div class="network-badge ${networkClass}">${networkDisplay}</div>
                     </div>
                     
                     <div class="device-info">
