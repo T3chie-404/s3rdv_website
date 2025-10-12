@@ -7,6 +7,14 @@
   <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   
+  <!-- SEO Keywords -->
+  <meta name="keywords" content="{% if page.keywords %}{{ page.keywords }}{% else %}s3v, south 3rd ventures, S3rdVentures, CatalystX_SOL, doublezero, solana validator, solana infrastructure, blockchain services{% endif %}">
+  
+  <!-- Additional SEO -->
+  <meta name="author" content="S3RDV LLC">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png">
@@ -25,11 +33,40 @@
   <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <meta property="og:site_name" content="S3RDV LLC">
+  <meta property="og:locale" content="en_US">
+  {% if page.url == "/" %}
+  <meta property="og:image" content="{{ site.url }}/assets/images/branding/wide/S3V_wide_96dpi_2k_small.jpg">
+  {% endif %}
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@S3rdVentures">
+  <meta name="twitter:creator" content="@CatalystX_SOL">
   <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
   <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+  {% if page.url == "/" %}
+  <meta name="twitter:image" content="{{ site.url }}/assets/images/branding/wide/S3V_wide_96dpi_2k_small.jpg">
+  {% endif %}
+  
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "S3RDV LLC",
+    "alternateName": ["South 3rd Ventures", "S3rdVentures"],
+    "url": "{{ site.url }}",
+    "logo": "{{ site.url }}/assets/images/branding/square/S3V_Square_Transparent symbol_3k_med.png",
+    "description": "{{ site.description }}",
+    "sameAs": [
+      "https://twitter.com/S3rdVentures",
+      "https://twitter.com/CatalystX_SOL"
+    ],
+    "foundingDate": "2023",
+    "keywords": "solana validator, blockchain infrastructure, CatalystX, doublezero network"
+  }
+  </script>
   
   {% include head-custom.html %}
 </head>

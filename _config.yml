@@ -21,9 +21,9 @@
 title: S3RDV LLC
 email: contact@s3rdv.com
 description: >-
-  S3RDV LLC is a leading provider of Solana blockchain infrastructure services, 
-  operating the CatalystX validator and supporting the network with over 2000 miles 
-  of 100 gigabit connectivity through doublezero.
+  S3RDV LLC (South 3rd Ventures) is a leading Solana validator operator running CatalystX_SOL.
+  We provide professional blockchain infrastructure services with 2000+ miles of 100 gigabit 
+  connectivity through the DoubleZero network, supporting Solana ecosystem growth.
 baseurl: ""
 url: "https://s3rdv.com"
 
@@ -73,6 +73,17 @@ infrastructure:
   connectivity: "2000+ miles of 100 gigabit connectivity"
   partner: "doublezero"
   support: "Solana network infrastructure"
+
+# SEO Settings
+twitter:
+  username: S3rdVentures
+  card: summary_large_image
+
+social:
+  name: S3RDV LLC
+  links:
+    - https://twitter.com/S3rdVentures
+    - https://twitter.com/CatalystX_SOL
 
 # Exclude from processing.
 # The following items will not be processed, by default.

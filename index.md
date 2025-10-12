@@ -1,6 +1,8 @@
 ---
 layout: page
-title: S3RDV LLC
+title: S3RDV LLC - Solana Validator & DoubleZero Network Infrastructure
+description: "S3RDV LLC (South 3rd Ventures) operates CatalystX_SOL Solana validator with 2000+ miles of 100 gigabit connectivity through DoubleZero network. Professional Solana blockchain infrastructure services."
+keywords: "s3v, south 3rd ventures, S3rdVentures, CatalystX_SOL, doublezero, solana validator, solana infrastructure, blockchain services, solana validator services, CatalystX validator, solana network"
 ---
 
 <div class="hero-section">
